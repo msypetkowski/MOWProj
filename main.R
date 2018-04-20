@@ -1,8 +1,7 @@
 # Simple experiment
 require(randomForest)
 
-getData <- function(id)
-{
+getData <- function(id) {
 	d1=read.table("student-mat.csv",sep=",",header=TRUE)
 	d2=read.table("student-por.csv",sep=",",header=TRUE)
 	if (id == 1) {
@@ -24,8 +23,17 @@ getData <- function(id)
 	# stopifnot(oldNrow - nrow(dataset) == 382) # as written in description on kaggle
 }
 
-doExperiment <- function(dataset)
-{
+# convert 2 ordinal attributes (Walc, Dalc) to 1 binary (alc)
+walc_dalc_to_alc <- function(dataset) {
+    # visualize 2 attributes
+    library(ggplot2)
+    qplot(dataset$Walc, dataset$Dalc, geom='bin2d')
+    # TODO (optional) : find better visualization
+
+    # TODO
+}
+
+doExperiment <- function(dataset) {
 	# separate a test set from dataset
 	smp_size <- floor(0.75 * nrow(dataset))
 	set.seed(123)
@@ -47,5 +55,6 @@ doExperiment <- function(dataset)
 	mean(abs(predicted - expected))
 }
 
-doExperiment(getData(1))
-doExperiment(getData(2))
+# doExperiment(getData(1))
+# doExperiment(getData(2))
+walc_dalc_to_alc(getData(1))

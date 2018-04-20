@@ -1,0 +1,61 @@
+\documentclass[a4paper]{article}
+
+\usepackage[a4paper,  margin=1.0in]{geometry}
+
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{hyperref}
+
+
+\usepackage[utf8]{inputenc}
+\begin{document}
+
+
+\title{Prediction of student's alcohol consumption with random forests}
+
+\author{Mikołaj Ciesielski, Michał Sypetkowski}
+\maketitle
+
+
+\section{Data}
+
+Research is done with dataset: \url{https://www.kaggle.com/uciml/student-alcohol-consumption/}.
+
+The data were obtained in a survey of students
+math and portuguese language courses in secondary school.
+It contains a lot of interesting social,
+gender and study information about students.
+
+There are several (382) students that belong to both datasets.
+These students can be identified by searching for identical attributes
+that characterize each student, as shown in the annexed R file.
+
+The dataset contains in total 395 math-course-students samples and 
+649 portugese-language-studens samples.
+
+
+\section{Clustering Dalc and Walc attributes into one binary attribute}
+
+We aim to build a model that would perform binary classification --
+whether student can be considered drinking alcohol regularly or not.
+The dataset provides 2 attributes:
+\begin{itemize}
+    \item Dalc - workday alcohol consumption (numeric: from 1 - very low to 5 - very high)
+    \item Walc - weekend alcohol consumption (numeric: from 1 - very low to 5 - very high)
+\end{itemize}
+2D histogram visualization is shown on figure \ref{fig:hist2D}.
+
+% TODO: think about following
+% We maximize consistency within 2 clusters of data using Silhouette coeficient
+% (\url{https://en.wikipedia.org/wiki/Silhouette_(clustering)}).
+% We use L2 distance.
+
+\begin{figure}[h]
+    \caption[]{2D histogram of Dalc and Walc attributes}
+    \centering
+    \includegraphics[page=1,width=1.0\textwidth]{../Rplots.pdf}
+    \label{fig:hist2D}
+\end{figure}
+
+
+\end{document}
