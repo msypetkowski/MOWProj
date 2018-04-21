@@ -45,6 +45,14 @@ The dataset provides 2 attributes:
 \end{itemize}
 2D histogram visualization is shown on figure \ref{fig:hist2D}.
 
+Using k-means algorithm (k=2) with initial centers in (3,3) and (1,1), we got clustering as shown on figure \ref{fig:clust}.
+The clustering is done on merged data of math and portugese-language students (with removed duplicates).
+Since workday alcohol consumption in case of students seems
+to be more likely perceived as a criterium of classyfying then as
+regulary drinking alcohol,
+we decided to increase importance of Dalc attribute.
+We did that by multiplying Dalc attribute by empirically factor of 1.5, and got clustering \ref{fig:clust2}.
+
 % TODO: think about following
 % We maximize consistency within 2 clusters of data using Silhouette coeficient
 % (\url{https://en.wikipedia.org/wiki/Silhouette_(clustering)}).
@@ -55,6 +63,20 @@ The dataset provides 2 attributes:
     \centering
     \includegraphics[page=1,width=1.0\textwidth]{../Rplots.pdf}
     \label{fig:hist2D}
+\end{figure}
+
+\begin{figure}[h]
+    \caption[]{Clustering with k-means algorithm. (1: drinking, 2: non-drinking)}
+    \centering
+    \includegraphics[page=2,width=1.0\textwidth]{../Rplots.pdf}
+    \label{fig:clust}
+\end{figure}
+
+\begin{figure}[h]
+    \caption[]{Clustering with k-means algorithm (1: drinking, 2: non-drinking). Importance of Dalc attribute increased.}
+    \centering
+    \includegraphics[page=3,width=1.0\textwidth]{../Rplots.pdf}
+    \label{fig:clust2}
 \end{figure}
 
 
