@@ -45,7 +45,7 @@ The dataset provides 2 attributes:
 \end{itemize}
 2D histogram visualization is shown on figure \ref{fig:hist2D}.
 
-Using k-means algorithm (k=2) with initial centers in (3,3) and (1,1), we got clustering as shown on figure \ref{fig:clust}.
+Using k-means algorithm (k=2) with initial centers in (1,1) and (3,3), we got clustering as shown on figure \ref{fig:clust}.
 The clustering is done on merged data of math and portugese-language students (with removed duplicates).
 Since workday alcohol consumption in case of students seems
 to be more likely perceived as a criterium of classyfying then as
@@ -66,17 +66,37 @@ We did that by multiplying Dalc attribute by empirically factor of 1.5, and got 
 \end{figure}
 
 \begin{figure}[h]
-    \caption[]{Clustering with k-means algorithm. (1: drinking, 2: non-drinking)}
+    \caption[]{Clustering with k-means algorithm. (1: non-drinking, 2: drinking)}
     \centering
     \includegraphics[page=2,width=1.0\textwidth]{../Rplots.pdf}
     \label{fig:clust}
 \end{figure}
 
 \begin{figure}[h]
-    \caption[]{Clustering with k-means algorithm (1: drinking, 2: non-drinking). Importance of Dalc attribute increased.}
+    \caption[]{Clustering with k-means algorithm (1: non-drinking, 2: drinking). Importance of Dalc attribute increased.}
     \centering
     \includegraphics[page=3,width=1.0\textwidth]{../Rplots.pdf}
     \label{fig:clust2}
+\end{figure}
+
+\section{Experiments with single decision tree}
+
+In order to get general insight into the statistics, we visualized 2 simple decision trees.
+Figure \ref{fig:single1} shows result for math studens,
+figure \ref{fig:single2} for portuguese-language studens.
+
+\begin{figure}[h]
+    \caption[]{Simple single decision tree for math students}
+    \centering
+    \includegraphics[page=4,width=1.0\textwidth]{../Rplots.pdf}
+    \label{fig:single1}
+\end{figure}
+
+\begin{figure}[h]
+    \caption[]{Simple single decision tree for portugese-language students}
+    \centering
+    \includegraphics[page=5,width=1.0\textwidth]{../Rplots.pdf}
+    \label{fig:single2}
 \end{figure}
 
 
