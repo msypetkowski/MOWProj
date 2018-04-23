@@ -58,53 +58,206 @@ We did that by multiplying Dalc attribute by empirically factor of 1.5, and got 
 % (\url{https://en.wikipedia.org/wiki/Silhouette_(clustering)}).
 % We use L2 distance.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \caption[]{2D histogram of Dalc and Walc attributes}
     \centering
     \includegraphics[page=1,width=1.0\textwidth]{../Rplots.pdf}
     \label{fig:hist2D}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \caption[]{Clustering with k-means algorithm. (1: non-drinking, 2: drinking)}
     \centering
     \includegraphics[page=2,width=1.0\textwidth]{../Rplots.pdf}
     \label{fig:clust}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \caption[]{Clustering with k-means algorithm (1: non-drinking, 2: drinking). Importance of Dalc attribute increased.}
     \centering
     \includegraphics[page=3,width=1.0\textwidth]{../Rplots.pdf}
     \label{fig:clust2}
 \end{figure}
 
+\newpage
 \section{Experiments with single decision trees}
 
 Accuracy of decision tree shouldn't give better results than random forest,
 so we trained several single decision trees to establish
 an upper limit of desired error rate for random forests.
 
-In accuracy measuring, we use cross-validation with 8 partitions.
-
-In order to get general insight into the statistics, we visualized 2 simple decision trees.
-Figure \ref{fig:single1} shows result for math studens,
+We used R package: \url{https://cran.r-project.org/web/packages/rpart/rpart.pdf}.
+We trained many models (with different parameters).
+We experimented with:
+\begin{enumerate}
+    \item cp - complexity parameter.
+        Any split that does not decrease the overall lack of fit by a factor of cp is not attempted
+        (the lower cp is, the more complex the model is)
+    \item minbucket - the minimum number of observations in any terminal node
+    \item maxdepth - maximum tree depth
+    \item split - method for calculating how good is a division (Gini index or enthropy)
+\end{enumerate}
+In accuracy measuring, we use cross-validation with 8 partitions
+and 5 repetitions (random shuffles of dataset before partitioning).
+Figure \ref{fig:single1} shows best tree for math studens,
 figure \ref{fig:single2} for portuguese-language studens.
 
-\begin{figure}[h]
-    \caption[]{Simple single decision tree for math students}
+
+Various models for math studens dataset sorted by error:
+\begin{verbatim}
+      cp minbucket maxdepth       split     error
+4  1e-01         5        5        gini 0.2175628
+9  1e-01        10        5        gini 0.2175628
+14 1e-01        15        5        gini 0.2175628
+19 1e-01         5       15        gini 0.2175628
+24 1e-01        10       15        gini 0.2175628
+29 1e-01        15       15        gini 0.2175628
+44 1e-01        15        5 information 0.2175628
+59 1e-01        15       15 information 0.2175628
+34 1e-01         5        5 information 0.2267465
+39 1e-01        10        5 information 0.2267465
+49 1e-01         5       15 information 0.2267465
+54 1e-01        10       15 information 0.2267465
+13 1e-02        15        5        gini 0.2373430
+28 1e-02        15       15        gini 0.2373430
+43 1e-02        15        5 information 0.2449372
+58 1e-02        15       15 information 0.2449372
+33 1e-02         5        5 information 0.2500687
+11 1e-04        15        5        gini 0.2510008
+12 1e-03        15        5        gini 0.2510008
+26 1e-04        15       15        gini 0.2520212
+27 1e-03        15       15        gini 0.2520212
+38 1e-02        10        5 information 0.2526786
+53 1e-02        10       15 information 0.2536990
+41 1e-04        15        5 information 0.2540326
+42 1e-03        15        5 information 0.2540326
+56 1e-04        15       15 information 0.2540326
+57 1e-03        15       15 information 0.2540326
+...
+\end{verbatim}
+% 8  1e-02        10        5        gini 0.2577217
+% 23 1e-02        10       15        gini 0.2582319
+% 36 1e-04        10        5 information 0.2603611
+% 37 1e-03        10        5 information 0.2603611
+% 3  1e-02         5        5        gini 0.2607535
+% 6  1e-04        10        5        gini 0.2638148
+% 7  1e-03        10        5        gini 0.2638148
+% 31 1e-04         5        5 information 0.2647763
+% 32 1e-03         5        5 information 0.2647763
+% 51 1e-04        10       15 information 0.2654337
+% 52 1e-03        10       15 information 0.2654337
+% 21 1e-04        10       15        gini 0.2663658
+% 22 1e-03        10       15        gini 0.2663658
+% 48 1e-02         5       15 information 0.2739305
+% 18 1e-02         5       15        gini 0.2770801
+% 1  1e-04         5        5        gini 0.2789443
+% 2  1e-03         5        5        gini 0.2789443
+% 5  3e-01         5        5        gini 0.3010695
+% 10 3e-01        10        5        gini 0.3010695
+% 15 3e-01        15        5        gini 0.3010695
+% 20 3e-01         5       15        gini 0.3010695
+% 25 3e-01        10       15        gini 0.3010695
+% 30 3e-01        15       15        gini 0.3010695
+% 35 3e-01         5        5 information 0.3010695
+% 40 3e-01        10        5 information 0.3010695
+% 45 3e-01        15        5 information 0.3010695
+\begin{verbatim}
+50 3e-01         5       15 information 0.3010695
+55 3e-01        10       15 information 0.3010695
+60 3e-01        15       15 information 0.3010695
+16 1e-04         5       15        gini 0.3054749
+17 1e-03         5       15        gini 0.3054749
+46 1e-04         5       15 information 0.3119604
+47 1e-03         5       15 information 0.3119604
+\end{verbatim}
+
+
+Various models for portugese-language studens dataset sorted by error:
+\begin{verbatim}
+      cp minbucket maxdepth       split     error
+4  1e-01         5        5        gini 0.2234041
+9  1e-01        10        5        gini 0.2234041
+14 1e-01        15        5        gini 0.2234041
+19 1e-01         5       15        gini 0.2234041
+24 1e-01        10       15        gini 0.2234041
+29 1e-01        15       15        gini 0.2234041
+34 1e-01         5        5 information 0.2234041
+39 1e-01        10        5 information 0.2234041
+44 1e-01        15        5 information 0.2234041
+49 1e-01         5       15 information 0.2234041
+54 1e-01        10       15 information 0.2234041
+59 1e-01        15       15 information 0.2234041
+13 1e-02        15        5        gini 0.2252296
+28 1e-02        15       15        gini 0.2252296
+43 1e-02        15        5 information 0.2255382
+58 1e-02        15       15 information 0.2255382
+38 1e-02        10        5 information 0.2338528
+33 1e-02         5        5 information 0.2341614
+8  1e-02        10        5        gini 0.2366343
+53 1e-02        10       15 information 0.2372478
+...
+\end{verbatim}
+% 23 1e-02        10       15        gini 0.2394121
+% 41 1e-04        15        5 information 0.2446364
+% 42 1e-03        15        5 information 0.2446364
+% 48 1e-02         5       15 information 0.2446515
+% 3  1e-02         5        5        gini 0.2449526
+% 11 1e-04        15        5        gini 0.2455623
+% 12 1e-03        15        5        gini 0.2455623
+% 56 1e-04        15       15 information 0.2464845
+% 57 1e-03        15       15 information 0.2464845
+% 26 1e-04        15       15        gini 0.2480315
+% 27 1e-03        15       15        gini 0.2480315
+% 36 1e-04        10        5 information 0.2532633
+% 37 1e-03        10        5 information 0.2532633
+% 18 1e-02         5       15        gini 0.2544941
+% 31 1e-04         5        5 information 0.2575918
+% 32 1e-03         5        5 information 0.2575918
+% 6  1e-04        10        5        gini 0.2634297
+% 7  1e-03        10        5        gini 0.2634297
+% 1  1e-04         5        5        gini 0.2742284
+% 2  1e-03         5        5        gini 0.2742284
+% 21 1e-04        10       15        gini 0.2828440
+% 22 1e-03        10       15        gini 0.2828440
+% 51 1e-04        10       15 information 0.2853056
+% 52 1e-03        10       15 information 0.2853056
+% 5  3e-01         5        5        gini 0.2973954
+% 10 3e-01        10        5        gini 0.2973954
+% 15 3e-01        15        5        gini 0.2973954
+% 20 3e-01         5       15        gini 0.2973954
+\begin{verbatim}
+25 3e-01        10       15        gini 0.2973954
+30 3e-01        15       15        gini 0.2973954
+35 3e-01         5        5 information 0.2973954
+40 3e-01        10        5 information 0.2973954
+45 3e-01        15        5 information 0.2973954
+50 3e-01         5       15 information 0.2973954
+55 3e-01        10       15 information 0.2973954
+60 3e-01        15       15 information 0.2973954
+46 1e-04         5       15 information 0.3074902
+47 1e-03         5       15 information 0.3074902
+16 1e-04         5       15        gini 0.3189137
+17 1e-03         5       15        gini 0.3189137
+\end{verbatim}
+
+
+
+
+\begin{figure}[]
+    \caption[]{Best single decision tree for math students that we achieved}
     \centering
     \includegraphics[page=4,width=1.0\textwidth]{../Rplots.pdf}
     \label{fig:single1}
 \end{figure}
 
-\begin{figure}[h]
-    \caption[]{Simple single decision tree for portugese-language students}
+\begin{figure}[]
+    \caption[]{Best single decision tree for portugese students that we achieved}
     \centering
     \includegraphics[page=6,width=1.0\textwidth]{../Rplots.pdf}
     \label{fig:single2}
 \end{figure}
 
+\newpage
 \section{Experiments with random forest}
 TODO
 

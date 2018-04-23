@@ -106,13 +106,18 @@ randomDivideDataset <- function(dataset, trainRatio) {
 }
 
 # returns predict function with 1 param - testset
-trainSingleTreeClassifier <- function(dataset, draw=FALSE) {
+trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.1, minbucket=5, maxdepth=5, split="gini") {
     param <- Drink ~ (school+sex+age+address+famsize+Pstatus+Medu+Fedu+Mjob+Fjob
                     +reason+guardian+traveltime+studytime+failures+schoolsup+famsup
                     +paid+activities+nursery+higher+internet+romantic+famrel+freetime
                     +goout+health+absences+G1+G2+G3)
     # tr <- rpart(param,data = dataset,method="class",control =rpart.control(minsplit = 30,minbucket=12, cp=0.005,maxdepth=10))
-    tr <- rpart(param,data = dataset,method="class",control =rpart.control(minsplit = 30,minbucket=12, cp=0.005,maxdepth=10))
+    tr <- rpart(param,data = dataset,method="class",control = rpart.control(
+                                    cp=cp,
+                                    minsplit = minbucket*2,
+                                    minbucket= minbucket,
+                                    maxdepth=maxdepth
+                             ), parms=list(split=split))
     if (draw) {
         fancyRpartPlot(tr)
     }
@@ -166,13 +171,50 @@ getClassifierError <- function(predFun, testset, attrName) {
     sum(predicted!= testset[[attrName]]) / nrow(testset)
 }
 
-doExperiment <- function(dataset, trainFun) {
+doExperiment <- function(dataset, trainFun, repTimes=5) {
     set.seed(123)
-    dataset <- dataset[sample(nrow(dataset)),]
-    errFun <- function(predFun, testset) {
-        getClassifierError(predFun, testset, "Drink")
+    errSum <- 0.0
+    for (i in 1:repTimes) {
+        dataset <- dataset[sample(nrow(dataset)),]
+        errFun <- function(predFun, testset) {
+            getClassifierError(predFun, testset, "Drink")
+        }
+        errSum <- errSum + crossValidation(dataset, trainFun, errFun, 8)
     }
-    crossValidation(dataset, trainFun, errFun, 8)
+    errSum / repTimes
+}
+
+decTreeTest <- function() {
+    for (i in 1:2) {
+        if (i==1) {
+            print("---------------Math")
+        } else {
+            print("---------------Portugese")
+        }
+        dataset1 <- walcToDalc(getData(i))
+
+        # train many dec trees
+        paramCp = list(0.0001, 0.001, 0.01, 0.1, 0.3)
+        paramMinBucket = list(5, 10, 15)
+        paramMaxDepth = list(5, 15)
+        paramSplit = list("gini", "information")
+        records <- apply(expand.grid(paramCp, paramMinBucket, paramMaxDepth, paramSplit), 1, FUN = function(x) {
+            error <- doExperiment(dataset1, function(ds) {
+                        trainSingleTreeClassifier(ds, cp=x[[1]], minbucket=x[[2]], maxdepth=x[[3]], split=x[[4]])
+            })
+            data.frame(
+                        c(x[[1]]),
+                        c(x[[2]]),
+                        c(x[[3]]),
+                        c(x[[4]]),
+                        c(error)
+            )
+        })
+        records <- joinDataframes(records)
+        records <- setNames(records, c("cp", "minbucket", "maxdepth", "split", "error"))
+        records <- records[with(records, order(error)), ]
+        print(records)
+    }
 }
 
 main <- function() {
@@ -186,18 +228,8 @@ main <- function() {
         trainRandomForestClssifier(dataset, draw=T)
     }
 
-    for (i in 1:2) {
-        if (i==1) {
-            print("---------------Math")
-        } else {
-            print("---------------Portugese")
-        }
-        dataset <- walcToDalc(getData(i))
-        print("randomForest error:")
-        print(doExperiment(dataset, trainRandomForestClssifier))
-        print("decTree error:")
-        print(doExperiment(dataset, trainSingleTreeClassifier))
-    }
+    print("-----------single dec tree experiments")
+    decTreeTest()
 }
 
 main()
