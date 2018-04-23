@@ -134,13 +134,14 @@ trainRandomForestClssifier <- function(trainset) {
 }
 
 crossValidation <- function(dataset, trainFunction, errorFunction, partitionsCount) {
-    set.seed(123)
     n <- partitionsCount
     nr <- nrow(dataset)
-    # TODO: last may be too small
-    f <- rep(1:ceiling(n), each=ceiling(nr/n), length.out=nr)
+    # TODO: some samples can be lost
+    f <- rep(1:ceiling(n), each=floor(nr/n), length.out=nr)
     parts <- split(dataset, f)
-    length(parts)
+    stopifnot(nrow(dataset) - nrow(joinDataframes(parts)) >= 0)
+    stopifnot(nrow(dataset) - nrow(joinDataframes(parts)) < nr/n)
+
     errSum <- 0.0
     for (i in 1:n) {
         train <- joinDataframes(parts[-i])
@@ -153,6 +154,8 @@ crossValidation <- function(dataset, trainFunction, errorFunction, partitionsCou
 }
 
 doExperiment <- function(dataset) {
+    set.seed(123)
+    dataset <- dataset[sample(nrow(dataset)),]
     errFun <- function(fit, testset) {
         getClassifierError(fit, testset, "Drink")
     }
