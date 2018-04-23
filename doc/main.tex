@@ -79,7 +79,13 @@ We did that by multiplying Dalc attribute by empirically factor of 1.5, and got 
     \label{fig:clust2}
 \end{figure}
 
-\section{Experiments with single decision tree}
+\section{Experiments with single decision trees}
+
+Accuracy of decision tree shouldn't give better results than random forest,
+so we trained several single decision trees to establish
+an upper limit of desired error rate for random forests.
+
+In accuracy measuring, we use cross-validation with 8 partitions.
 
 In order to get general insight into the statistics, we visualized 2 simple decision trees.
 Figure \ref{fig:single1} shows result for math studens,
@@ -95,7 +101,7 @@ figure \ref{fig:single2} for portuguese-language studens.
 \begin{figure}[h]
     \caption[]{Simple single decision tree for portugese-language students}
     \centering
-    \includegraphics[page=5,width=1.0\textwidth]{../Rplots.pdf}
+    \includegraphics[page=6,width=1.0\textwidth]{../Rplots.pdf}
     \label{fig:single2}
 \end{figure}
 

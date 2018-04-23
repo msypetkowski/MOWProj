@@ -93,7 +93,7 @@ walcToDalc <- function(dataset) {
     ret
 }
 
-# separate a test set from dataset
+# separate a random test set from dataset
 randomDivideDataset <- function(dataset, trainRatio) {
     smp_size <- floor(trainRatio * nrow(dataset))
     set.seed(123)
@@ -105,32 +105,38 @@ randomDivideDataset <- function(dataset, trainRatio) {
     list("train" = train, "test" = test)
 }
 
-doExperimentNormalTree <- function(dataset) {
+# returns predict function with 1 param - testset
+trainSingleTreeClassifier <- function(dataset, draw=FALSE) {
     param <- Drink ~ (school+sex+age+address+famsize+Pstatus+Medu+Fedu+Mjob+Fjob
                     +reason+guardian+traveltime+studytime+failures+schoolsup+famsup
                     +paid+activities+nursery+higher+internet+romantic+famrel+freetime
                     +goout+health+absences+G1+G2+G3)
+    # tr <- rpart(param,data = dataset,method="class",control =rpart.control(minsplit = 30,minbucket=12, cp=0.005,maxdepth=10))
     tr <- rpart(param,data = dataset,method="class",control =rpart.control(minsplit = 30,minbucket=12, cp=0.005,maxdepth=10))
-    # prp(tr)
-    fancyRpartPlot(tr)
-    # plot(tr)
-    # text(tr)
+    if (draw) {
+        fancyRpartPlot(tr)
+    }
+    predFun <- function(testset) {
+        p <- predict(tr, testset)
+        as.integer(p[, 1] < 0.5) + 1
+    }
+    predFun
 }
 
-getClassifierError <- function(fit, testset, attrName) {
-    predicted = predict(fit, testset)
-    # print(predicted)
-    sum(predicted!= testset[[attrName]]) / nrow(testset)
-}
-
-trainRandomForestClssifier <- function(trainset) {
+# returns predict function with 1 param - testset
+trainRandomForestClssifier <- function(trainset, draw=FALSE) {
     param <- Drink ~ (school+sex+age+address+famsize+Pstatus+Medu+Fedu+Mjob+Fjob
                     +reason+guardian+traveltime+studytime+failures+schoolsup+famsup
                     +paid+activities+nursery+higher+internet+romantic+famrel+freetime
                     +goout+health+absences+G1+G2+G3)
     fit <- randomForest(param, data=trainset, importance=TRUE, ntree=200)
-    # varImpPlot(fit)
-    fit
+    if (draw) {
+        varImpPlot(fit)
+    }
+    predFun <- function(testset) {
+        predict(fit, testset)
+    }
+    predFun
 }
 
 crossValidation <- function(dataset, trainFunction, errorFunction, partitionsCount) {
@@ -148,38 +154,50 @@ crossValidation <- function(dataset, trainFunction, errorFunction, partitionsCou
         test <- parts[[i]]
         stopifnot(nrow(train) + nrow(test) == nrow(dataset))
         fit <- trainFunction(train)
-        errSum <- errSum + errorFunction(fit, test)
+        e <- errorFunction(fit, test)
+        errSum <- errSum + e
     }
     errSum / n
 }
 
-doExperiment <- function(dataset) {
+getClassifierError <- function(predFun, testset, attrName) {
+    predicted <- predFun(testset)
+    stopifnot(length(predicted) == nrow(testset))
+    sum(predicted!= testset[[attrName]]) / nrow(testset)
+}
+
+doExperiment <- function(dataset, trainFun) {
     set.seed(123)
     dataset <- dataset[sample(nrow(dataset)),]
-    errFun <- function(fit, testset) {
-        getClassifierError(fit, testset, "Drink")
+    errFun <- function(predFun, testset) {
+        getClassifierError(predFun, testset, "Drink")
     }
-    crossValidation(dataset, trainRandomForestClssifier, errFun, 8)
+    crossValidation(dataset, trainFun, errFun, 8)
 }
 
 main <- function() {
     # only draws plots
     calcClustering(mergedData(getData(1), getData(2)))
 
-    dataset <- walcToDalc(getData(1))
-    doExperimentNormalTree(dataset)
-    dataset <- walcToDalc(getData(2))
-    doExperimentNormalTree(dataset)
+    # draw plots for classifiers done on whole data
+    for (i in 1:2) {
+        dataset <- walcToDalc(getData(i))
+        trainSingleTreeClassifier(dataset, draw=T)
+        trainRandomForestClssifier(dataset, draw=T)
+    }
 
-    print("---------------Math")
-    dataset <- walcToDalc(getData(1))
-    print("randomForest error:")
-    print(doExperiment(dataset))
-
-    print("---------------Portugese")
-    dataset <- walcToDalc(getData(2))
-    print("randomForest error:")
-    print(doExperiment(dataset))
+    for (i in 1:2) {
+        if (i==1) {
+            print("---------------Math")
+        } else {
+            print("---------------Portugese")
+        }
+        dataset <- walcToDalc(getData(i))
+        print("randomForest error:")
+        print(doExperiment(dataset, trainRandomForestClssifier))
+        print("decTree error:")
+        print(doExperiment(dataset, trainSingleTreeClassifier))
+    }
 }
 
 main()
