@@ -16,6 +16,9 @@
 \author{Mikołaj Ciesielski, Michał Sypetkowski}
 \maketitle
 
+\tableofcontents
+\newpage
+
 
 \section{Data}
 
@@ -86,6 +89,7 @@ and 0.2973806 for portugese language students.
 
 \newpage
 \section{Experiments with single decision trees}
+\label{expSingle}
 
 Accuracy of decision tree shouldn't give better results than random forest,
 so we trained several single decision trees to establish
@@ -107,145 +111,19 @@ and 5 repetitions (random shuffles of dataset before partitioning).
 Figure \ref{fig:single1} shows best tree for math studens,
 figure \ref{fig:single2} for portuguese-language studens.
 
-
-Various models for math studens dataset sorted by error:
-\begin{verbatim}
-      cp minbucket maxdepth       split     error
-4  1e-01         5        5        gini 0.2175628
-9  1e-01        10        5        gini 0.2175628
-14 1e-01        15        5        gini 0.2175628
-19 1e-01         5       15        gini 0.2175628
-24 1e-01        10       15        gini 0.2175628
-29 1e-01        15       15        gini 0.2175628
-44 1e-01        15        5 information 0.2175628
-59 1e-01        15       15 information 0.2175628
-34 1e-01         5        5 information 0.2267465
-39 1e-01        10        5 information 0.2267465
-49 1e-01         5       15 information 0.2267465
-54 1e-01        10       15 information 0.2267465
-13 1e-02        15        5        gini 0.2373430
-28 1e-02        15       15        gini 0.2373430
-43 1e-02        15        5 information 0.2449372
-58 1e-02        15       15 information 0.2449372
-33 1e-02         5        5 information 0.2500687
-11 1e-04        15        5        gini 0.2510008
-12 1e-03        15        5        gini 0.2510008
-26 1e-04        15       15        gini 0.2520212
-27 1e-03        15       15        gini 0.2520212
-38 1e-02        10        5 information 0.2526786
-53 1e-02        10       15 information 0.2536990
-41 1e-04        15        5 information 0.2540326
-42 1e-03        15        5 information 0.2540326
-56 1e-04        15       15 information 0.2540326
-57 1e-03        15       15 information 0.2540326
-...
-\end{verbatim}
-% 8  1e-02        10        5        gini 0.2577217
-% 23 1e-02        10       15        gini 0.2582319
-% 36 1e-04        10        5 information 0.2603611
-% 37 1e-03        10        5 information 0.2603611
-% 3  1e-02         5        5        gini 0.2607535
-% 6  1e-04        10        5        gini 0.2638148
-% 7  1e-03        10        5        gini 0.2638148
-% 31 1e-04         5        5 information 0.2647763
-% 32 1e-03         5        5 information 0.2647763
-% 51 1e-04        10       15 information 0.2654337
-% 52 1e-03        10       15 information 0.2654337
-% 21 1e-04        10       15        gini 0.2663658
-% 22 1e-03        10       15        gini 0.2663658
-% 48 1e-02         5       15 information 0.2739305
-% 18 1e-02         5       15        gini 0.2770801
-% 1  1e-04         5        5        gini 0.2789443
-% 2  1e-03         5        5        gini 0.2789443
-% 5  3e-01         5        5        gini 0.3010695
-% 10 3e-01        10        5        gini 0.3010695
-% 15 3e-01        15        5        gini 0.3010695
-% 20 3e-01         5       15        gini 0.3010695
-% 25 3e-01        10       15        gini 0.3010695
-% 30 3e-01        15       15        gini 0.3010695
-% 35 3e-01         5        5 information 0.3010695
-% 40 3e-01        10        5 information 0.3010695
-% 45 3e-01        15        5 information 0.3010695
-\begin{verbatim}
-50 3e-01         5       15 information 0.3010695
-55 3e-01        10       15 information 0.3010695
-60 3e-01        15       15 information 0.3010695
-16 1e-04         5       15        gini 0.3054749
-17 1e-03         5       15        gini 0.3054749
-46 1e-04         5       15 information 0.3119604
-47 1e-03         5       15 information 0.3119604
-\end{verbatim}
+\subsection{Conclusion}
+\label{singleConc}
+Trees with lowest error are simple and use generally 2 attributes:
+\begin{itemize}
+    \item goout - going out with friends (numeric: from 1 - very low to 5 - very high).
+        Splits with this attribute are done by comparing value of this attribute to 3.5
+        (less or equal 3 or higher than 3).
+    \item sex - student's sex (binary: 'F' - female or 'M' - male).
+        Trees use generalization, such that female students drink less.
+\end{itemize}
 
 
-Various models for portugese-language studens dataset sorted by error:
-\begin{verbatim}
-      cp minbucket maxdepth       split     error
-4  1e-01         5        5        gini 0.2234041
-9  1e-01        10        5        gini 0.2234041
-14 1e-01        15        5        gini 0.2234041
-19 1e-01         5       15        gini 0.2234041
-24 1e-01        10       15        gini 0.2234041
-29 1e-01        15       15        gini 0.2234041
-34 1e-01         5        5 information 0.2234041
-39 1e-01        10        5 information 0.2234041
-44 1e-01        15        5 information 0.2234041
-49 1e-01         5       15 information 0.2234041
-54 1e-01        10       15 information 0.2234041
-59 1e-01        15       15 information 0.2234041
-13 1e-02        15        5        gini 0.2252296
-28 1e-02        15       15        gini 0.2252296
-43 1e-02        15        5 information 0.2255382
-58 1e-02        15       15 information 0.2255382
-38 1e-02        10        5 information 0.2338528
-33 1e-02         5        5 information 0.2341614
-8  1e-02        10        5        gini 0.2366343
-53 1e-02        10       15 information 0.2372478
-...
-\end{verbatim}
-% 23 1e-02        10       15        gini 0.2394121
-% 41 1e-04        15        5 information 0.2446364
-% 42 1e-03        15        5 information 0.2446364
-% 48 1e-02         5       15 information 0.2446515
-% 3  1e-02         5        5        gini 0.2449526
-% 11 1e-04        15        5        gini 0.2455623
-% 12 1e-03        15        5        gini 0.2455623
-% 56 1e-04        15       15 information 0.2464845
-% 57 1e-03        15       15 information 0.2464845
-% 26 1e-04        15       15        gini 0.2480315
-% 27 1e-03        15       15        gini 0.2480315
-% 36 1e-04        10        5 information 0.2532633
-% 37 1e-03        10        5 information 0.2532633
-% 18 1e-02         5       15        gini 0.2544941
-% 31 1e-04         5        5 information 0.2575918
-% 32 1e-03         5        5 information 0.2575918
-% 6  1e-04        10        5        gini 0.2634297
-% 7  1e-03        10        5        gini 0.2634297
-% 1  1e-04         5        5        gini 0.2742284
-% 2  1e-03         5        5        gini 0.2742284
-% 21 1e-04        10       15        gini 0.2828440
-% 22 1e-03        10       15        gini 0.2828440
-% 51 1e-04        10       15 information 0.2853056
-% 52 1e-03        10       15 information 0.2853056
-% 5  3e-01         5        5        gini 0.2973954
-% 10 3e-01        10        5        gini 0.2973954
-% 15 3e-01        15        5        gini 0.2973954
-% 20 3e-01         5       15        gini 0.2973954
-\begin{verbatim}
-25 3e-01        10       15        gini 0.2973954
-30 3e-01        15       15        gini 0.2973954
-35 3e-01         5        5 information 0.2973954
-40 3e-01        10        5 information 0.2973954
-45 3e-01        15        5 information 0.2973954
-50 3e-01         5       15 information 0.2973954
-55 3e-01        10       15 information 0.2973954
-60 3e-01        15       15 information 0.2973954
-46 1e-04         5       15 information 0.3074902
-47 1e-03         5       15 information 0.3074902
-16 1e-04         5       15        gini 0.3189137
-17 1e-03         5       15        gini 0.3189137
-\end{verbatim}
-
-
+\input{singleResults}
 
 
 \begin{figure}[]
@@ -266,6 +144,54 @@ Various models for portugese-language studens dataset sorted by error:
 \newpage
 \section{Experiments with random forest}
 We used R package -- \url{https://cran.r-project.org/web/packages/randomForest/randomForest.pdf}
+We trained many models (with different parameters).
+In accuracy measuring, we use cross-validation with 8 partitions
+and 5 repetitions (similarly as in \ref{expSingle}).
+We experimented with:
+\begin{enumerate}
+    \item ntree - number of trees in forest
+    \item nodesize
+    \item seed - seed used when building a tree
+            In case of small random forests, it may be important to experiment with different random seed.
+            Some implementations may use separate random generator objects for each tree, so that
+            even with different data (we use cross validation), structure will be similar.
+            Just in case, we decided to try different seeds set in moment of calling \texttt{randomForest}
+            function from randomForest package.
+    \item mtry - number of variables (attributes) randomly sampled as candidates at each split.
+\end{enumerate}
+
+\input{forestResults}
+
+Random forests doesn't produce better results than single decision trees.
+Moreover, mtry parameter equals total attributes count.
+In results, such random forests have similar properties to single decision trees.
+We found out, that the trees in such forests use mostly splits as
+in case of best single decision trees (section \ref{singleConc})
+Variable importance plots for best random forest parameters (that we have found)
+are shown on figures \ref{fig:imp1} and \ref{fig:imp2}.
+
+
+\begin{figure}[]
+    \caption[]{Variable (attribute) importance plot for math students}
+    \centering
+    \includegraphics[page=5,width=1.0\textwidth]{../Rplots.pdf}
+    \label{fig:imp1}
+\end{figure}
+
+\begin{figure}[]
+    \caption[]{Variable (attribute) importance plot for portugese language students}
+    \centering
+    \includegraphics[page=7,width=1.0\textwidth]{../Rplots.pdf}
+    \label{fig:imp2}
+\end{figure}
+
+\section{Conclusion}
+
+Random forests doesn't perform well on this dataset, because
+all attributes (excluding goout and sex -- see \ref{singleConc}) are very noisy.
+Random forests are trying to use these noisy variables,
+hence they accuracy is similar or lower than accuracy of
+a simple decision tree (figure \ref{fig:single1}).
 
 
 \end{document}

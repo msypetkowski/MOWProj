@@ -3,10 +3,9 @@ require(randomForest)
 require(ggplot2)
 require(cluster)
 require(ade4)
-
-library(rpart)
-library(rattle)
-library(rpart.plot)
+require(rpart)
+require(rattle)
+require(rpart.plot)
 
 joinDataframes <- function(listOfDf) {
     df <- do.call("rbind", listOfDf)
@@ -130,7 +129,7 @@ trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.1, minbucket=5, 
 
 # returns predict function with 1 param - testset
 
-trainRandomForestClssifier <- function(trainset, draw=FALSE, ntree=50, nodesize=1, seed=2, mtry=31, maxnodes=5) {
+trainRandomForestClssifier <- function(trainset, draw=FALSE, ntree=500, nodesize=10, seed=2, mtry=31, maxnodes=5) {
     set.seed(seed)
     param <- Drink ~ (school+sex+age+address+famsize+Pstatus+Medu+Fedu+Mjob+Fjob
                     +reason+guardian+traveltime+studytime+failures+schoolsup+famsup
@@ -269,6 +268,7 @@ main <- function() {
 
     print("-----------single dec tree experiments")
     decTreeTest()
+    print("-----------random forest experiments")
     forestTest()
 }
 
