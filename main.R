@@ -129,14 +129,18 @@ trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.1, minbucket=5, 
 }
 
 # returns predict function with 1 param - testset
-trainRandomForestClssifier <- function(trainset, draw=FALSE) {
+
+trainRandomForestClssifier <- function(trainset, draw=FALSE, ntree=50, nodesize=1, seed=2, mtry=31, maxnodes=5) {
+    set.seed(seed)
     param <- Drink ~ (school+sex+age+address+famsize+Pstatus+Medu+Fedu+Mjob+Fjob
                     +reason+guardian+traveltime+studytime+failures+schoolsup+famsup
                     +paid+activities+nursery+higher+internet+romantic+famrel+freetime
                     +goout+health+absences+G1+G2+G3)
-    fit <- randomForest(param, data=trainset, importance=TRUE, ntree=200)
+    fit <- randomForest(param, data=trainset, importance=draw, ntree=ntree, nodesize=nodesize, mtry=mtry, maxnodes=maxnodes)
     if (draw) {
         varImpPlot(fit)
+        # plot(fit)
+        # print(getTree(fit, k=1, labelVar=F))
     }
     predFun <- function(testset) {
         predict(fit, testset)
@@ -172,9 +176,9 @@ getClassifierError <- function(predFun, testset, attrName) {
 }
 
 doExperiment <- function(dataset, trainFun, repTimes=5) {
-    set.seed(123)
     errSum <- 0.0
     for (i in 1:repTimes) {
+        set.seed(123 + i)  # more elegant way would be using random generator object
         dataset <- dataset[sample(nrow(dataset)),]
         errFun <- function(predFun, testset) {
             getClassifierError(predFun, testset, "Drink")
@@ -217,6 +221,41 @@ decTreeTest <- function() {
     }
 }
 
+forestTest <- function() {
+    for (i in 1:2) {
+        if (i==1) {
+            print("---------------Math")
+        } else {
+            print("---------------Portugese")
+        }
+        dataset1 <- walcToDalc(getData(i))
+
+        # train many dec trees
+        paramNtree = list(1, 5, 50, 500)
+        paramNodesize = list(1, 10)
+        paramSeed = list(1, 2, 3, 4, 5)
+        paramMtry = list(1, 6, 10, 31)
+        paramMaxnodes = list(5, 10, 30)
+        records <- apply(expand.grid(paramNtree, paramNodesize, paramSeed, paramMtry, paramMaxnodes), 1, FUN = function(x) {
+            error <- doExperiment(dataset1, function(ds) {
+                        trainRandomForestClssifier(ds, ntree=x[[1]], nodesize=x[[2]], seed=x[[3]], mtry=x[[4]], maxnodes=x[[5]])
+            })
+            data.frame(
+                        c(x[[1]]),
+                        c(x[[2]]),
+                        c(x[[3]]),
+                        c(x[[4]]),
+                        c(x[[5]]),
+                        c(error)
+            )
+        })
+        records <- joinDataframes(records)
+        records <- setNames(records, c("ntree", "nodesize", "seed", "mtry", "maxnodes", "error"))
+        records <- records[with(records, order(error)), ]
+        print(records)
+    }
+}
+
 main <- function() {
     # only draws plots
     calcClustering(mergedData(getData(1), getData(2)))
@@ -230,6 +269,7 @@ main <- function() {
 
     print("-----------single dec tree experiments")
     decTreeTest()
+    forestTest()
 }
 
 main()
