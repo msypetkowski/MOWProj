@@ -7,6 +7,7 @@ library(rpart)
 library(rattle)
 # require(rpart.plot)
 library(ggplot2)
+library(xtable)
 
 joinDataframes <- function(listOfDf) {
     df <- do.call("rbind", listOfDf)
@@ -47,7 +48,6 @@ mergedData <- function(d1, d2) {
     dataset <- dataset[!duplicated(dataset[duplicateCriteria]),]
     nrow(dataset)
     stopifnot(oldNrow - nrow(dataset) == 382) # as written in description on kaggle
-    dataset$goout[5:50] = NA
     dataset
 }
 
@@ -119,10 +119,10 @@ randomDivideDataset <- function(dataset, trainRatio) {
 }
 
 # returns predict function with 1 param - testset
-trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.001, minbucket=5, maxdepth=5, split="gini") {
+trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.1, minbucket=5, maxdepth=5, split="gini") {
     param <- Drink ~ (school+sex+age+address+famsize+Pstatus+Medu+Fedu+Mjob+Fjob
                     +reason+guardian+traveltime+studytime+failures+schoolsup+famsup
-                    +paid+activities+nursery+higher+internet+romantic+famrel+freetime +goout+health+absences
+                    +paid+activities+nursery+higher+internet+romantic+famrel+freetime+goout+health+absences
                     +G1+G2+G3) # +M_G1+M_G2+M_G3+P_G1+P_G2+P_G3)
     # tr <- rpart(param,data = dataset,method="class",control =rpart.control(minsplit = 30,minbucket=12, cp=0.005,maxdepth=10))
     tr <- rpart(param,data = dataset,method="class",control = rpart.control(
@@ -144,11 +144,11 @@ trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.001, minbucket=5
 # returns predict function with 1 param - testset
 
 trainRandomForestClssifier <- function(trainset, draw=FALSE, ntree=500, nodesize=10, seed=2, mtry=31, maxnodes=5) {
-    set.seed(seed)
+    # set.seed(seed)
     param <- Drink ~ (school+sex+age+address+famsize+Pstatus+Medu+Fedu+Mjob+Fjob
                     +reason+guardian+traveltime+studytime+failures+schoolsup+famsup
                     +paid+activities+nursery+higher+internet+romantic+famrel+freetime
-                    +paid+activities+nursery+higher+internet+romantic+famrel+freetime +goout+health+absences
+                    +paid+activities+nursery+higher+internet+romantic+famrel+freetime+goout+health+absences
                     +G1+G2+G3) # +M_G1+M_G2+M_G3+P_G1+P_G2+P_G3)
     fit <- randomForest(param, data=trainset, importance=draw, ntree=ntree, nodesize=nodesize, mtry=mtry, maxnodes=maxnodes)
     if (draw) {
@@ -171,16 +171,16 @@ crossValidation <- function(dataset, trainFunction, errorFunction, partitionsCou
     stopifnot(nrow(dataset) - nrow(joinDataframes(parts)) >= 0)
     stopifnot(nrow(dataset) - nrow(joinDataframes(parts)) < nr/n)
 
-    errSum <- 0.0
+    errSamples <- 0.0
     for (i in 1:n) {
         train <- joinDataframes(parts[-i])
         test <- parts[[i]]
         stopifnot(nrow(train) + nrow(test) == nrow(dataset))
         fit <- trainFunction(train)
         e <- errorFunction(fit, test)
-        errSum <- errSum + e
+        errSamples <- c(errSamples, c(e))
     }
-    errSum / n
+    errSamples
 }
 
 getClassifierError <- function(predFun, testset, attrName) {
@@ -190,40 +190,46 @@ getClassifierError <- function(predFun, testset, attrName) {
 }
 
 doExperiment <- function(dataset, trainFun, repTimes=5) {
-    errSum <- 0.0
+    errSamples <- vector()
+    set.seed(123)
     for (i in 1:repTimes) {
-        set.seed(123 + i)  # more elegant way would be using random generator object
         dataset <- dataset[sample(nrow(dataset)),]
         errFun <- function(predFun, testset) {
             getClassifierError(predFun, testset, "Drink")
         }
-        errSum <- errSum + crossValidation(dataset, trainFun, errFun, 8)
+        errSamples <- c(errSamples, crossValidation(dataset, trainFun, errFun, 8))
     }
-    errSum / repTimes
+    errSamples
 }
 
 decTreeTest <- function(dataset1) {
     # train many dec trees
     paramCp = list(0.0001, 0.001, 0.01, 0.1, 0.3)
-    paramMinBucket = list(5, 10, 15)
+    paramMinBucket = list(5, 15)
     paramMaxDepth = list(5, 15)
     paramSplit = list("gini", "information")
     records <- apply(expand.grid(paramCp, paramMinBucket, paramMaxDepth, paramSplit), 1, FUN = function(x) {
-        error <- doExperiment(dataset1, function(ds) {
+        samples <- doExperiment(dataset1, function(ds) {
                     trainSingleTreeClassifier(ds, cp=x[[1]], minbucket=x[[2]], maxdepth=x[[3]], split=x[[4]])
         })
         data.frame(
-                    c(x[[1]]),
+                    c(x[[1]]*100),
                     c(x[[2]]),
                     c(x[[3]]),
                     c(x[[4]]),
-                    c(error)
+                    c(mean(samples)),
+                    c(sd(samples)),
+                    c(min(samples)),
+                    c(max(samples))
         )
     })
     records <- joinDataframes(records)
-    records <- setNames(records, c("cp", "minbucket", "maxdepth", "split", "error"))
-    records <- records[with(records, order(error)), ]
+    records <- setNames(records, c("cp_x100", "minbucket", "maxdepth", "split", "err_mean", "err_sd", "err_min", "err_max"))
+    records <- records[with(records, order(err_mean)), ]
     print(records)
+    print(xtable(records, type = "latex",
+                 label = "table:singleResults", caption = "Various single decision trees results"),
+          file = "singleResults.tex", caption.placement = "top")
 }
 
 forestTest <- function(dataset1) {
@@ -231,10 +237,10 @@ forestTest <- function(dataset1) {
     paramNtree = list(1, 5, 50, 500)
     paramNodesize = list(1, 10)
     # paramSeed = list(1, 2, 3, 4, 5)
-    paramMtry = list(1, 6, 10, 31)
+    paramMtry = list(1, 6, 10, 38)
     paramMaxnodes = list(5, 10, 30)
     records <- apply(expand.grid(paramNtree, paramNodesize, paramMtry, paramMaxnodes), 1, FUN = function(x) {
-        error <- doExperiment(dataset1, function(ds) {
+        samples <- doExperiment(dataset1, function(ds) {
                     trainRandomForestClssifier(ds, ntree=x[[1]], nodesize=x[[2]], mtry=x[[3]], maxnodes=x[[4]])
         })
         data.frame(
@@ -242,13 +248,19 @@ forestTest <- function(dataset1) {
                     c(x[[2]]),
                     c(x[[3]]),
                     c(x[[4]]),
-                    c(error)
+                    c(mean(samples)),
+                    c(sd(samples)),
+                    c(min(samples)),
+                    c(max(samples))
         )
     })
     records <- joinDataframes(records)
-    records <- setNames(records, c("ntree", "nodesize", "mtry", "maxnodes", "error"))
-    records <- records[with(records, order(error)), ]
+    records <- setNames(records, c("ntree", "nodesize", "mtry", "maxnodes", "err_mean", "err_sd", "err_min", "err_max"))
+    records <- records[with(records, order(err_mean)), ]
     print(records)
+    print(xtable(records, type = "latex",
+                 label="table:forestResults", caption="Various random forests results"),
+          file = "forestResults.tex", caption.placement = "top", tabular.environment = "longtable")
 }
 
 main <- function() {
@@ -257,17 +269,15 @@ main <- function() {
 
     # get dataset
     dataset1 = walcDalcToDrink(mergedData(getData(1), getData(2)))
-    print(nrow(dataset1))
-    print(dataset1[1:20,])
 
-    # # draw plots for classifiers done on whole data
+    # draw plots
     trainSingleTreeClassifier(dataset1, draw=T)
     trainRandomForestClssifier(dataset1, draw=T)
 
-    # print("-----------single dec tree experiments")
-    # # decTreeTest(dataset1)
-    # print("-----------random forest experiments")
-    # forestTest(dataset1)
+    print("-----------single dec tree experiments")
+    decTreeTest(dataset1)
+    print("-----------random forest experiments")
+    forestTest(dataset1)
 }
 
 main()

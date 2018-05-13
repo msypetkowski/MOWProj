@@ -6,6 +6,7 @@
 \usepackage{float}
 \usepackage{hyperref}
 \usepackage{multicol}
+\usepackage{longtable}
 
 
 \usepackage[utf8]{inputenc}
@@ -60,12 +61,12 @@ The dataset provides 2 attributes:
 \end{itemize}
 2D histogram visualization is shown on figure \ref{fig:hist2D}.
 
-Using k-means algorithm (k=2) with initial centers in (1,1) and (3,3), we got clustering as shown on figure \ref{fig:clust}.
+Using k-means algorithm (k=2) with initial centers in (1,1) and (3,3), we got clustering as shown in figure \ref{fig:clust}.
 Since workday alcohol consumption in case of students seems
 to be more likely perceived as a criterium of classyfying then as
 regulary drinking alcohol,
 we decided to increase importance of Dalc attribute.
-We did that by multiplying Dalc attribute by empirically factor of 1.5, and got clustering \ref{fig:clust2}.
+We did that by multiplying Dalc attribute by empirically factor of 1.5, and got clustering shown in figure \ref{fig:clust2}.
 
 In the end, we classify 30\% of the students as drinking with proposed clustering.
 
@@ -124,6 +125,7 @@ and 5 repetitions (random shuffles of dataset before partitioning).
 \subsection{Results}
 \label{singleConc}
 
+Results for all trained decision trees are shown in table \ref{table:singleResults}.
 Trees with lowest error are simple and use generally 2 attributes:
 \begin{itemize}
     \item goout - going out with friends (numeric: from 1 - very low to 5 - very high).
@@ -165,7 +167,7 @@ and 5 repetitions (similarly as in \ref{expSingle}).
 We experimented with:
 \begin{enumerate}
     \item ntree - number of trees in forest
-    \item nodesize
+    \item nodesize - minimum size (number of assiociated examples) of terminal nodes.
     % \item seed - seed used when building a tree
     %         In case of small random forests, it may be important to experiment with different random seed.
     %         Some implementations may use separate random generator objects for each tree, so that
@@ -173,7 +175,13 @@ We experimented with:
     %         Just in case, we decided to try different seeds set in moment of calling \texttt{randomForest}
     %         function from randomForest package.
     \item mtry - number of variables (attributes) randomly sampled as candidates at each split.
+    \item maxnodes - maximum number of terminal nodes that trees in the forest can have.
 \end{enumerate}
+
+\subsection{Results}
+\label{singleConc}
+Results for all tested random forests are shown in table \ref{table:forestResults}.
+
 Random forests doesn't produce better results than single decision trees.
 Moreover, mtry parameter equals total attributes count.
 In results, such random forests have similar properties to single decision trees.
@@ -181,6 +189,7 @@ We found out, that the trees in such forests use mostly splits as
 in case of best single decision trees (see section \ref{singleConc})
 Variable importance plot for best random forest parameters (that we have found)
 is shown in figure \ref{fig:importance}.
+
 
 \begin{figure}[H]
     \centering
@@ -212,20 +221,22 @@ Random forests are trying to use these noisy variables,
 hence they accuracy is similar or lower than accuracy of
 a simple decision tree (figure \ref{fig:single}).
 
+\end{multicols}
 
 \newpage
 \appendix
-\section{Single tree classifiers results}
-\label{singleResults}
-\input{singleResults}
+\section{All single tree classifiers results}
+% \label{singleResults}
+% \input{singleResults}
+\input{../singleResults}
 
 \newpage
-\section{Random forest classifiers results}
-\label{forestResults}
-\input{forestResults}
+\section{All random forest classifiers results}
+% \label{forestResults}
+% \input{forestResults}
+\input{../forestResults}
 
 
 
-\end{multicols}
 
 \end{document}
