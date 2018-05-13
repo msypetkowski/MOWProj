@@ -106,18 +106,6 @@ walcDalcToDrink <- function(dataset) {
     ret
 }
 
-# separate a random test set from dataset
-randomDivideDataset <- function(dataset, trainRatio) {
-    smp_size <- floor(trainRatio * nrow(dataset))
-    set.seed(123)
-    # R doesn't have unpack syntax, so a nice oneliner is probably not possible
-    train_ind <- sample(seq_len(nrow(dataset)), size = smp_size)
-    train <- dataset[train_ind, ]
-    test <- dataset[-train_ind, ]
-    stopifnot(nrow(train) + nrow(test) == nrow(dataset))
-    list("train" = train, "test" = test)
-}
-
 # returns predict function with 1 param - testset
 trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.1, minbucket=5, maxdepth=5, split="gini") {
     param <- Drink ~ (school+sex+age+address+famsize+Pstatus+Medu+Fedu+Mjob+Fjob
