@@ -38,14 +38,16 @@ that characterize each student, as shown in the annexed R file.
 The dataset contains in total 395 math-course-students samples and 
 649 portugese-language-studens samples.
 
-For experiments, we merged both tables, creating attributes
-\texttt{M\_G1},
-\texttt{M\_G2},
-\texttt{M\_G3},
-\texttt{P\_G1},
-\texttt{P\_G2} and
-\texttt{P\_G3} instead of
-\texttt{G1}, \texttt{G2} and \texttt{G3}.
+For experiments, we merged both tables removing duplicate students.
+Final dataset consists of 662 examples.
+
+% \texttt{M\_G1},
+% \texttt{M\_G2},
+% \texttt{M\_G3},
+% \texttt{P\_G1},
+% \texttt{P\_G2} and
+% \texttt{P\_G3} instead of
+% \texttt{G1}, \texttt{G2} and \texttt{G3}.
 
 \section{Clustering Dalc and Walc attributes into one binary attribute}
 
@@ -59,15 +61,13 @@ The dataset provides 2 attributes:
 2D histogram visualization is shown on figure \ref{fig:hist2D}.
 
 Using k-means algorithm (k=2) with initial centers in (1,1) and (3,3), we got clustering as shown on figure \ref{fig:clust}.
-The clustering is done on merged data of math and portugese-language students (with removed duplicates).
 Since workday alcohol consumption in case of students seems
 to be more likely perceived as a criterium of classyfying then as
 regulary drinking alcohol,
 we decided to increase importance of Dalc attribute.
 We did that by multiplying Dalc attribute by empirically factor of 1.5, and got clustering \ref{fig:clust2}.
 
-With this clustering, we got drinking ratio 0.3012658 for math students,
-and 0.2973806 for portugese language students.
+In the end, we classify 30\% of the students as drinking with proposed clustering.
 
 
 
@@ -77,24 +77,24 @@ and 0.2973806 for portugese language students.
 % We use L2 distance.
 
 \begin{figure}[H]
-    \caption[]{2D histogram of Dalc and Walc attributes}
     \centering
     \includegraphics[page=1,width=0.5\textwidth]{../Rplots.pdf}
     \label{fig:hist2D}
+    \caption[]{2D histogram of Dalc and Walc attributes}
 \end{figure}
 
 \begin{figure}[H]
-    \caption[]{Clustering with k-means algorithm. (1: non-drinking, 2: drinking)}
     \centering
     \includegraphics[page=2,width=0.5\textwidth]{../Rplots.pdf}
     \label{fig:clust}
+    \caption[]{Clustering with k-means algorithm. (1: non-drinking, 2: drinking)}
 \end{figure}
 
 \begin{figure}[H]
-    \caption[]{Clustering with k-means algorithm (1: non-drinking, 2: drinking). Importance of Dalc attribute increased.}
     \centering
     \includegraphics[page=3,width=0.5\textwidth]{../Rplots.pdf}
     \label{fig:clust2}
+    \caption[]{Clustering with k-means algorithm (1: non-drinking, 2: drinking). Importance of Dalc attribute increased.}
 \end{figure}
 
 
@@ -121,21 +121,26 @@ and 5 repetitions (random shuffles of dataset before partitioning).
 % Figure \ref{fig:single1} shows best tree for math studens,
 % figure \ref{fig:single2} for portuguese-language studens.
 % 
-% \subsection{Conclusion}
-% \label{singleConc}
-% Trees with lowest error are simple and use generally 2 attributes:
-% \begin{itemize}
-%     \item goout - going out with friends (numeric: from 1 - very low to 5 - very high).
-%         Splits with this attribute are done by comparing value of this attribute to 3.5
-%         (less or equal 3 or higher than 3).
-%     \item sex - student's sex (binary: 'F' - female or 'M' - male).
-%         Trees use generalization, such that female students drink less.
-% \end{itemize}
-% 
-% 
-% \input{singleResults}
-% 
-% 
+\subsection{Results}
+\label{singleConc}
+
+Trees with lowest error are simple and use generally 2 attributes:
+\begin{itemize}
+    \item goout - going out with friends (numeric: from 1 - very low to 5 - very high).
+        Splits with this attribute are done by comparing value of this attribute to 3.5
+        (less or equal 3 or higher than 3).
+    \item sex - student's sex (binary: 'F' - female or 'M' - male).
+        Trees use generalization, such that female students drink less.
+\end{itemize}
+Such tree is shown in figure \ref{fig:single}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[trim={2cm 2cm 2cm 2cm},clip,page=4,width=0.5\textwidth]{../Rplots.pdf}
+    \label{fig:single}
+    \caption[]{Single decision tree with lowest mean error}
+\end{figure}
+
 % \begin{figure}[]
 %     \caption[]{Best single decision tree for math students that we achieved}
 %     \centering
@@ -152,35 +157,39 @@ and 5 repetitions (random shuffles of dataset before partitioning).
 % 
 % 
 % \newpage
-% \section{Experiments with random forest}
-% We used R package -- \url{https://cran.r-project.org/web/packages/randomForest/randomForest.pdf}
-% We trained many models (with different parameters).
-% In accuracy measuring, we use cross-validation with 8 partitions
-% and 5 repetitions (similarly as in \ref{expSingle}).
-% We experimented with:
-% \begin{enumerate}
-%     \item ntree - number of trees in forest
-%     \item nodesize
-%     \item seed - seed used when building a tree
-%             In case of small random forests, it may be important to experiment with different random seed.
-%             Some implementations may use separate random generator objects for each tree, so that
-%             even with different data (we use cross validation), structure will be similar.
-%             Just in case, we decided to try different seeds set in moment of calling \texttt{randomForest}
-%             function from randomForest package.
-%     \item mtry - number of variables (attributes) randomly sampled as candidates at each split.
-% \end{enumerate}
-% 
-% \input{forestResults}
-% 
-% Random forests doesn't produce better results than single decision trees.
-% Moreover, mtry parameter equals total attributes count.
-% In results, such random forests have similar properties to single decision trees.
-% We found out, that the trees in such forests use mostly splits as
-% in case of best single decision trees (section \ref{singleConc})
-% Variable importance plots for best random forest parameters (that we have found)
-% are shown on figures \ref{fig:imp1} and \ref{fig:imp2}.
-% 
-% 
+\section{Experiments with random forests}
+We used R package -- \url{https://cran.r-project.org/web/packages/randomForest/randomForest.pdf}
+We trained many models (with different parameters).
+In accuracy measuring, we use cross-validation with 8 partitions
+and 5 repetitions (similarly as in \ref{expSingle}).
+We experimented with:
+\begin{enumerate}
+    \item ntree - number of trees in forest
+    \item nodesize
+    % \item seed - seed used when building a tree
+    %         In case of small random forests, it may be important to experiment with different random seed.
+    %         Some implementations may use separate random generator objects for each tree, so that
+    %         even with different data (we use cross validation), structure will be similar.
+    %         Just in case, we decided to try different seeds set in moment of calling \texttt{randomForest}
+    %         function from randomForest package.
+    \item mtry - number of variables (attributes) randomly sampled as candidates at each split.
+\end{enumerate}
+Random forests doesn't produce better results than single decision trees.
+Moreover, mtry parameter equals total attributes count.
+In results, such random forests have similar properties to single decision trees.
+We found out, that the trees in such forests use mostly splits as
+in case of best single decision trees (see section \ref{singleConc})
+Variable importance plot for best random forest parameters (that we have found)
+is shown in figure \ref{fig:importance}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[trim={0 0 0 2cm},clip,page=5,width=0.5\textwidth]{../Rplots.pdf}
+    \label{fig:importance}
+    \caption[]{Variable (attribute) importance plot for random forest with lowest mean error}
+\end{figure}
+
+
 % \begin{figure}[]
 %     \caption[]{Variable (attribute) importance plot for math students}
 %     \centering
@@ -195,15 +204,28 @@ and 5 repetitions (random shuffles of dataset before partitioning).
 %     \label{fig:imp2}
 % \end{figure}
 % 
-% \section{Conclusion}
-% 
-% Random forests doesn't perform well on this dataset, because
-% all attributes (excluding goout and sex -- see \ref{singleConc}) are very noisy.
-% Random forests are trying to use these noisy variables,
-% hence they accuracy is similar or lower than accuracy of
-% a simple decision tree (figure \ref{fig:single1}).
+\section{Conclusion}
+
+Random forests doesn't perform well on this dataset, because
+all attributes (excluding goout and sex -- see \ref{singleConc}) are very noisy.
+Random forests are trying to use these noisy variables,
+hence they accuracy is similar or lower than accuracy of
+a simple decision tree (figure \ref{fig:single}).
+
+
+\newpage
+\appendix
+\section{Single tree classifiers results}
+\label{singleResults}
+\input{singleResults}
+
+\newpage
+\section{Random forest classifiers results}
+\label{forestResults}
+\input{forestResults}
+
+
 
 \end{multicols}
-
 
 \end{document}
