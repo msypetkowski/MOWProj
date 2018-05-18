@@ -261,7 +261,7 @@ measureSingleSplits <- function(dataset) {
         lev <- levels(dataset[,name])
 
         # only for nominal attributes
-        if (!is.null(lev)) {
+        if (!is.null(lev) && name!="Drink") {
             names <- c(name, names)
             weights <- c()
             entropies <- c()
@@ -292,6 +292,7 @@ measureSingleSplits <- function(dataset) {
     print(xtable(records, type = "latex", digits=c(0, 0, 0, 7),
                  label="table:nominalIG", caption="Information gain for single value based splits for nominal attributes"),
           file = "nominalIG.tex", caption.placement = "top", table.placement = "H", include.rownames=FALSE)
+    barplot(records[,"informationGain"] , horiz=TRUE, names.arg=records[,"name"], las=1, cex.names=0.8)
     records
 }
 
@@ -302,11 +303,11 @@ main <- function() {
     # get dataset
     dataset1 = walcDalcToDrink(mergedData(getData(1), getData(2)))
 
-    measureSingleSplits(dataset1);
-
     # draw plots
     trainSingleTreeClassifier(dataset1, draw=T)
     trainRandomForestClssifier(dataset1, draw=T)
+
+    measureSingleSplits(dataset1);
 
     print("-----------single dec tree experiments")
     decTreeTest(dataset1)

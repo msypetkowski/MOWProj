@@ -51,6 +51,7 @@ Final dataset consists of 662 examples.
 % \texttt{G1}, \texttt{G2} and \texttt{G3}.
 
 \section{Clustering Dalc and Walc attributes into one binary attribute}
+\label{clust}
 
 We aim to build a model that would perform binary classification --
 whether student can be considered drinking alcohol regularly or not.
@@ -100,9 +101,22 @@ In the end, we classify 30\% of the students as drinking with proposed clusterin
 
 \subsection{Single splits information gain}
 \label{xent}
-Table \ref{table:nominalIG} shows information gain values for all nominal attributes.
+First, we check how the class is depenent on each single nominal attribute.
+Figure \ref{fig:nominalIG} shows information gain values
+of single splits by each nominal attribute (in the context of class Drink described in section \ref{clust}).
 
-\input{../nominalIG}
+As we can see, sex of the students gives significantly bigger information gain
+than the other nominal attributes.
+
+% Table \ref{table:nominalIG} shows information gain values for all nominal attributes.
+% \input{../nominalIG}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[page=6,width=0.5\textwidth]{../Rplots.pdf}
+    \label{fig:nominalIG}
+    \caption[]{Information gain values for all nominal attributes}
+\end{figure}
 
 
 \section{Experiments with single decision trees}
@@ -112,7 +126,7 @@ Accuracy of decision tree shouldn't give better results than random forest,
 so we trained several single decision trees to establish
 an upper limit of desired error rate for random forests.
 
-We used R package: \url{https://cran.r-project.org/web/packages/rpart/rpart.pdf}.
+We used rpart\footnote{\url{https://cran.r-project.org/web/packages/rpart/rpart.pdf}} package for the experiments.
 We trained many models (with different parameters).
 We experimented with:
 \begin{enumerate}
@@ -166,7 +180,7 @@ Such tree is shown in figure \ref{fig:single}.
 % 
 % \newpage
 \section{Experiments with random forests}
-We used R package -- \url{https://cran.r-project.org/web/packages/randomForest/randomForest.pdf}
+We randomForest\footnote{\url{https://cran.r-project.org/web/packages/randomForest/randomForest.pdf}} package for the experiments.
 We trained many models (with different parameters).
 In accuracy measuring, we use cross-validation with 8 partitions
 and 5 repetitions (similarly as in \ref{expSingle}).
