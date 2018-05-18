@@ -159,7 +159,7 @@ crossValidation <- function(dataset, trainFunction, errorFunction, partitionsCou
     stopifnot(nrow(dataset) - nrow(joinDataframes(parts)) >= 0)
     stopifnot(nrow(dataset) - nrow(joinDataframes(parts)) < nr/n)
 
-    errSamples <- 0.0
+    errSamples <- c()
     for (i in 1:n) {
         train <- joinDataframes(parts[-i])
         test <- parts[[i]]
@@ -201,7 +201,7 @@ decTreeTest <- function(dataset1) {
                     trainSingleTreeClassifier(ds, cp=x[[1]], minbucket=x[[2]], maxdepth=x[[3]], split=x[[4]])
         })
         data.frame(
-                    c(x[[1]]*100),
+                    c(x[[1]]),
                     c(x[[2]]),
                     c(x[[3]]),
                     c(x[[4]]),
@@ -212,12 +212,12 @@ decTreeTest <- function(dataset1) {
         )
     })
     records <- joinDataframes(records)
-    records <- setNames(records, c("cp_x100", "minbucket", "maxdepth", "split", "err_mean", "err_sd", "err_min", "err_max"))
+    records <- setNames(records, c("cp", "minbucket", "maxdepth", "split", "err_mean", "err_sd", "err_min", "err_max"))
     records <- records[with(records, order(err_mean)), ]
     print(records)
-    print(xtable(records, type = "latex",
-                 label = "table:singleResults", caption = "Various single decision trees results"),
-          file = "singleResults.tex", caption.placement = "top")
+    print(xtable(records, type = "latex", digits=c(0, 5, 2, 2, 0, 2, 2, 2, 2),
+                 label = "table:singleResults", caption = "Various single decision trees results (sorted by mean error)"),
+          file = "singleResults.tex", caption.placement = "top", include.rownames=FALSE)
 }
 
 forestTest <- function(dataset1) {
@@ -226,7 +226,7 @@ forestTest <- function(dataset1) {
     paramNodesize = list(1, 10)
     # paramSeed = list(1, 2, 3, 4, 5)
     paramMtry = list(1, 6, 10, 38)
-    paramMaxnodes = list(5, 10, 30)
+    paramMaxnodes = list(5, 10, 30, 5000)
     records <- apply(expand.grid(paramNtree, paramNodesize, paramMtry, paramMaxnodes), 1, FUN = function(x) {
         samples <- doExperiment(dataset1, function(ds) {
                     trainRandomForestClssifier(ds, ntree=x[[1]], nodesize=x[[2]], mtry=x[[3]], maxnodes=x[[4]])
@@ -247,8 +247,52 @@ forestTest <- function(dataset1) {
     records <- records[with(records, order(err_mean)), ]
     print(records)
     print(xtable(records, type = "latex",
-                 label="table:forestResults", caption="Various random forests results"),
-          file = "forestResults.tex", caption.placement = "top", tabular.environment = "longtable")
+                 label="table:forestResults", caption="Various random forests results (sorted by mean error)"),
+          file = "forestResults.tex", caption.placement = "top", tabular.environment = "longtable", include.rownames=FALSE)
+}
+
+binaryEntropy <- function(ratio) {
+    -(ratio * log(ratio + 1e-100) + (1-ratio) * log((1-ratio) + 1e-100))
+}
+
+measureSingleSplits <- function(dataset) {
+    records <- list()
+    for (name in names(dataset)) {
+        lev <- levels(dataset[,name])
+
+        # only for nominal attributes
+        if (!is.null(lev)) {
+            names <- c(name, names)
+            weights <- c()
+            entropies <- c()
+            for (l in lev) {
+                mask <- dataset[,name] == l
+                d <- dataset[mask, "Drink"]
+                total <- length(d)
+                drink <- sum(d == 2)
+                ratio <- drink/total
+                weights <- c(weights, total)
+                entropies <- c(entropies, binaryEntropy(ratio))
+            }
+            afterSplitEntropy <- sum(entropies*weights) / sum(weights)
+            d <- dataset[, "Drink"]
+            total <- length(d)
+            drink <- sum(d == 2)
+                ratio <- drink/total
+            beforeSplitEntropy <- binaryEntropy(ratio)
+            informationGain <- beforeSplitEntropy - afterSplitEntropy
+            records[[length(records) + 1L]] <- data.frame(name, length(lev), informationGain)
+        }
+    }
+    # print(records)
+    records <- joinDataframes(as.list(records))
+    records <- setNames(records, c("name", "levels", "informationGain"))
+    records <- records[with(records, order(informationGain)), ]
+    print(records)
+    print(xtable(records, type = "latex", digits=c(0, 0, 0, 7),
+                 label="table:nominalIG", caption="Information gain for single value based splits for nominal attributes"),
+          file = "nominalIG.tex", caption.placement = "top", table.placement = "H", include.rownames=FALSE)
+    records
 }
 
 main <- function() {
@@ -257,6 +301,8 @@ main <- function() {
 
     # get dataset
     dataset1 = walcDalcToDrink(mergedData(getData(1), getData(2)))
+
+    measureSingleSplits(dataset1);
 
     # draw plots
     trainSingleTreeClassifier(dataset1, draw=T)

@@ -98,6 +98,12 @@ In the end, we classify 30\% of the students as drinking with proposed clusterin
     \caption[]{Clustering with k-means algorithm (1: non-drinking, 2: drinking). Importance of Dalc attribute increased.}
 \end{figure}
 
+\subsection{Single splits information gain}
+\label{xent}
+Table \ref{table:nominalIG} shows information gain values for all nominal attributes.
+
+\input{../nominalIG}
+
 
 \section{Experiments with single decision trees}
 \label{expSingle}
@@ -215,11 +221,16 @@ is shown in figure \ref{fig:importance}.
 % 
 \section{Conclusion}
 
-Random forests doesn't perform well on this dataset, because
-all attributes (excluding goout and sex -- see \ref{singleConc}) are very noisy.
-Random forests are trying to use these noisy variables,
-hence they accuracy is similar or lower than accuracy of
-a simple decision tree (figure \ref{fig:single}).
+Random forests doesn't perform well on this dataset (no better than single decision trees).
+Most attributes are noisy in terms of single splits (cross entropy -- see section \ref{xent}).
+Best single decision tree turned out to have only 2 splits (see figure \ref{fig:single}).
+
+TODO
+% Decision trees (and random forests) are trying to use these noisy variables
+% by greedily splitting them by some information-gain-like measurement.
+% hence they accuracy is similar or lower than accuracy of
+% a simple decision tree.
+
 
 \end{multicols}
 
