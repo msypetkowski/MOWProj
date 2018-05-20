@@ -257,11 +257,16 @@ binaryEntropy <- function(ratio) {
 
 measureSingleSplits <- function(dataset) {
     records <- list()
+    ttestRecords <- list()
     for (name in names(dataset)) {
+        if (name=="Drink") {
+            next
+        }
         lev <- levels(dataset[,name])
 
-        # only for nominal attributes
-        if (!is.null(lev) && name!="Drink") {
+        # entropy for nominal attributes
+        # and t-test for numeric
+        if (!is.null(lev)) {
             names <- c(name, names)
             weights <- c()
             entropies <- c()
@@ -282,6 +287,13 @@ measureSingleSplits <- function(dataset) {
             beforeSplitEntropy <- binaryEntropy(ratio)
             informationGain <- beforeSplitEntropy - afterSplitEntropy
             records[[length(records) + 1L]] <- data.frame(name, length(lev), informationGain)
+        } else {
+            print(name)
+            res = t.test(dataset[dataset$Drink=="1", name],
+                         dataset[dataset$Drink=="2", name])
+            print(res)
+            ttestRecords[[length(ttestRecords) + 1L]] <- data.frame(name, res$p.value)
+            # ttestRecords[[length(ttestRecords) + 1L]] <- data.frame(name, res$t)
         }
     }
     # print(records)
@@ -294,6 +306,11 @@ measureSingleSplits <- function(dataset) {
           file = "nominalIG.tex", caption.placement = "top", table.placement = "H", include.rownames=FALSE)
     barplot(records[,"informationGain"] , horiz=TRUE, names.arg=records[,"name"], las=1, cex.names=0.8)
     records
+
+    ttestRecords <- joinDataframes(as.list(ttestRecords))
+    ttestRecords <- setNames(ttestRecords, c("name", "p.value"))
+    ttestRecords <- ttestRecords[with(ttestRecords, order(-p.value)), ]
+    barplot(ttestRecords[,"p.value"] , horiz=TRUE, names.arg=ttestRecords[,"name"], las=1, cex.names=0.8)
 }
 
 main <- function() {

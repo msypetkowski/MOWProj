@@ -102,9 +102,9 @@ In the end, we classify 30\% of the students as drinking with proposed clusterin
 \subsection{Single splits information gain}
 \label{xent}
 First, we check how the class is depenent on each single nominal attribute.
+
 Figure \ref{fig:nominalIG} shows information gain values
 of single splits by each nominal attribute (in the context of class Drink described in section \ref{clust}).
-
 As we can see, sex of the students gives significantly bigger information gain
 than the other nominal attributes.
 
@@ -114,8 +114,22 @@ than the other nominal attributes.
 \begin{figure}[H]
     \centering
     \includegraphics[page=6,width=0.5\textwidth]{../Rplots.pdf}
+    \caption[]{Information gain values for all nominal attributes
     \label{fig:nominalIG}
-    \caption[]{Information gain values for all nominal attributes}
+    }
+\end{figure}
+
+
+Figure \ref{fig:pval} shows p-values of t-test significance for numeric attributes.
+From this plot, we can decide which attributes are statistically important
+in the context of our classification problem.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[page=7,width=0.5\textwidth]{../Rplots.pdf}
+    \caption[]{P-values for all numeric attributes
+    \label{fig:pval}
+    }
 \end{figure}
 
 
