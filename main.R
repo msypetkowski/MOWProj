@@ -57,18 +57,10 @@ calcClustering <- function(dataset) {
     # TODO (optional) : find better visualization
     print(qplot(dataset$Walc, dataset$Dalc, geom='bin2d'))
 
-    # do clustering
-    df <- data.frame(dataset$Walc, dataset$Dalc)
-    plot(df)
-    # class 1 will mean non-drinking, 2 - drinking
-    km <- kmeans(df, centers=rbind(c(1,1), c(3,3)))
-    kmeansRes<-factor(km$cluster)
-    s.class(df,fac=kmeansRes, add.plot=TRUE, col=rainbow(nlevels(kmeansRes)))
-
     # do clustering - increased Dalc importance
-    df <- data.frame(dataset$Walc, dataset$Dalc * 1.5)
+    df <- data.frame(scale(dataset$Walc), scale(dataset$Dalc))
     plot(df)
-    km <- kmeans(df, centers=rbind(c(1,1), c(3,3)))
+    km <- kmeans(df, centers=rbind(c(-1,-1), c(1,1)))
     kmeansRes<-factor(km$cluster)
     s.class(df,fac=kmeansRes, add.plot=TRUE, col=rainbow(nlevels(kmeansRes)))
 
@@ -80,16 +72,14 @@ calcClustering <- function(dataset) {
 # convert 2 ordinal attributes (Walc, Dalc) to 1 binary (Drink)
 walcDalcToDrink <- function(dataset) {
     d1 = dplyr::filter(dataset, 
-        (Dalc <= 2 & Walc <= 2) |
-        (Dalc <= 3 & Walc <= 1) |
-        (Dalc <= 1 & Walc <= 3))
+        (Dalc <= 2 & Walc <= 1) |
+        (Dalc <= 1 & Walc <= 2))
     print("Non-drinking studens ratio")
     print(nrow(d1)/nrow(dataset))
 
     d2 = dplyr::filter(dataset, !(
-        (Dalc <= 2 & Walc <= 2) |
-        (Dalc <= 3 & Walc <= 1) |
-        (Dalc <= 1 & Walc <= 3)))
+        (Dalc <= 2 & Walc <= 1) |
+        (Dalc <= 1 & Walc <= 2)))
     print("Drinking studens ratio")
     print(nrow(d2)/nrow(dataset))
 
@@ -107,7 +97,7 @@ walcDalcToDrink <- function(dataset) {
 }
 
 # returns predict function with 1 param - testset
-trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.1, minbucket=5, maxdepth=5, split="gini") {
+trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.01, minbucket=15, maxdepth=5, split="gini") {
     param <- Drink ~ (school+sex+age+address+famsize+Pstatus+Medu+Fedu+Mjob+Fjob
                     +reason+guardian+traveltime+studytime+failures+schoolsup+famsup
                     +paid+activities+nursery+higher+internet+romantic+famrel+freetime+goout+health+absences
@@ -131,8 +121,7 @@ trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.1, minbucket=5, 
 
 # returns predict function with 1 param - testset
 
-trainRandomForestClssifier <- function(trainset, draw=FALSE, ntree=500, nodesize=10, seed=2, mtry=31, maxnodes=5) {
-    # set.seed(seed)
+trainRandomForestClssifier <- function(trainset, draw=FALSE, ntree=500, nodesize=10, mtry=10, maxnodes=5000) {
     param <- Drink ~ (school+sex+age+address+famsize+Pstatus+Medu+Fedu+Mjob+Fjob
                     +reason+guardian+traveltime+studytime+failures+schoolsup+famsup
                     +paid+activities+nursery+higher+internet+romantic+famrel+freetime
@@ -177,7 +166,7 @@ getClassifierError <- function(predFun, testset, attrName) {
     sum(predicted!= testset[[attrName]]) / nrow(testset)
 }
 
-doExperiment <- function(dataset, trainFun, repTimes=5) {
+doExperiment <- function(dataset, trainFun, repTimes=10) {
     errSamples <- vector()
     set.seed(123)
     for (i in 1:repTimes) {
@@ -291,7 +280,6 @@ measureSingleSplits <- function(dataset) {
             print(name)
             res = t.test(dataset[dataset$Drink=="1", name],
                          dataset[dataset$Drink=="2", name])
-            print(res)
             ttestRecords[[length(ttestRecords) + 1L]] <- data.frame(name, res$p.value)
             # ttestRecords[[length(ttestRecords) + 1L]] <- data.frame(name, res$t)
         }
@@ -327,9 +315,9 @@ main <- function() {
     measureSingleSplits(dataset1);
 
     print("-----------single dec tree experiments")
-    decTreeTest(dataset1)
+    # decTreeTest(dataset1)
     print("-----------random forest experiments")
-    forestTest(dataset1)
+    # forestTest(dataset1)
 }
 
 main()

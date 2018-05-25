@@ -62,15 +62,10 @@ The dataset provides 2 attributes:
 \end{itemize}
 2D histogram visualization is shown on figure \ref{fig:hist2D}.
 
-Using k-means algorithm (k=2) with initial centers in (1,1) and (3,3), we got clustering as shown in figure \ref{fig:clust}.
-Since workday alcohol consumption in case of students seems
-to be more likely perceived as a criterium of classyfying then as
-regulary drinking alcohol,
-we decided to increase importance of Dalc attribute.
-We did that by multiplying Dalc attribute by empirically factor of 1.5, and got clustering shown in figure \ref{fig:clust2}.
-
-In the end, we classify 30\% of the students as drinking with proposed clustering.
-
+First, we standarize Dalc and Walc attributes.
+Using k-means algorithm (k=2) with initial centers in (-1,-1) and (1,1), we got clustering as shown in figure \ref{fig:clust}.
+In the end, we classify 45.3\% of the students as drinking with proposed clustering.
+The results may be considered commonsensial.
 
 
 % TODO: think about following
@@ -92,13 +87,6 @@ In the end, we classify 30\% of the students as drinking with proposed clusterin
     \caption[]{Clustering with k-means algorithm. (1: non-drinking, 2: drinking)}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[page=3,width=0.5\textwidth]{../Rplots.pdf}
-    \label{fig:clust2}
-    \caption[]{Clustering with k-means algorithm (1: non-drinking, 2: drinking). Importance of Dalc attribute increased.}
-\end{figure}
-
 \subsection{Single splits information gain}
 \label{xent}
 First, we check how the class is depenent on each single nominal attribute.
@@ -113,9 +101,17 @@ than the other nominal attributes.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[page=6,width=0.5\textwidth]{../Rplots.pdf}
+    \includegraphics[page=5,width=0.5\textwidth]{../Rplots.pdf}
     \caption[]{Information gain values for all nominal attributes
     \label{fig:nominalIG}
+    }
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[page=6,width=0.5\textwidth]{../Rplots.pdf}
+    \caption[]{P-values for all numeric attributes
+    \label{fig:pval}
     }
 \end{figure}
 
@@ -124,13 +120,6 @@ Figure \ref{fig:pval} shows p-values of t-test significance for numeric attribut
 From this plot, we can decide which attributes are statistically important
 in the context of our classification problem.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[page=7,width=0.5\textwidth]{../Rplots.pdf}
-    \caption[]{P-values for all numeric attributes
-    \label{fig:pval}
-    }
-\end{figure}
 
 
 \section{Experiments with single decision trees}
@@ -152,7 +141,7 @@ We experimented with:
     \item split - method for calculating how good is a division (Gini index or enthropy)
 \end{enumerate}
 In accuracy measuring, we use cross-validation with 8 partitions
-and 5 repetitions (random shuffles of dataset before partitioning).
+and 10 repetitions (random shuffles of dataset before partitioning).
 % Figure \ref{fig:single1} shows best tree for math studens,
 % figure \ref{fig:single2} for portuguese-language studens.
 % 
@@ -160,19 +149,20 @@ and 5 repetitions (random shuffles of dataset before partitioning).
 \label{singleConc}
 
 Results for all trained decision trees are shown in table \ref{table:singleResults}.
-Trees with lowest error are simple and use generally 2 attributes:
+Trees with lowest error are simple and we can see that 2 attributes are most important:
 \begin{itemize}
     \item goout - going out with friends (numeric: from 1 - very low to 5 - very high).
         Splits with this attribute are done by comparing value of this attribute to 3.5
         (less or equal 3 or higher than 3).
     \item sex - student's sex (binary: 'F' - female or 'M' - male).
-        Trees use generalization, such that female students drink less.
+        Trees use generalization, such that female students are less likely to drink alcochol.
 \end{itemize}
 Such tree is shown in figure \ref{fig:single}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[trim={2cm 2cm 2cm 2cm},clip,page=4,width=0.5\textwidth]{../Rplots.pdf}
+    % \includegraphics[trim={2cm 2cm 2cm 2cm},clip,page=3,width=0.5\textwidth]{../Rplots.pdf}
+    \includegraphics[trim={1cm 1cm 1cm 1cm},clip,page=3,width=0.5\textwidth]{../Rplots.pdf}
     \label{fig:single}
     \caption[]{Single decision tree with lowest mean error}
 \end{figure}
@@ -197,7 +187,7 @@ Such tree is shown in figure \ref{fig:single}.
 We randomForest\footnote{\url{https://cran.r-project.org/web/packages/randomForest/randomForest.pdf}} package for the experiments.
 We trained many models (with different parameters).
 In accuracy measuring, we use cross-validation with 8 partitions
-and 5 repetitions (similarly as in \ref{expSingle}).
+and 10 repetitions (similarly as in \ref{expSingle}).
 We experimented with:
 \begin{enumerate}
     \item ntree - number of trees in forest
@@ -217,17 +207,17 @@ We experimented with:
 Results for all tested random forests are shown in table \ref{table:forestResults}.
 
 Random forests doesn't produce better results than single decision trees.
-Moreover, mtry parameter equals total attributes count.
-In results, such random forests have similar properties to single decision trees.
-We found out, that the trees in such forests use mostly splits as
-in case of best single decision trees (see section \ref{singleConc})
+% Moreover, mtry parameter equals total attributes count.
+% In results, such random forests have similar properties to single decision trees.
+% We found out, that the trees in such forests use mostly splits as
+% in case of best single decision trees (see section \ref{singleConc})
 Variable importance plot for best random forest parameters (that we have found)
 is shown in figure \ref{fig:importance}.
 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[trim={0 0 0 2cm},clip,page=5,width=0.5\textwidth]{../Rplots.pdf}
+    \includegraphics[trim={0 0 0 2cm},clip,page=4,width=0.5\textwidth]{../Rplots.pdf}
     \label{fig:importance}
     \caption[]{Variable (attribute) importance plot for random forest with lowest mean error}
 \end{figure}
@@ -250,10 +240,10 @@ is shown in figure \ref{fig:importance}.
 \section{Conclusion}
 
 Random forests doesn't perform well on this dataset (no better than single decision trees).
-Most attributes are noisy in terms of single splits (cross entropy -- see section \ref{xent}).
-Best single decision tree turned out to have only 2 splits (see figure \ref{fig:single}).
+% Most attributes are noisy in terms of single splits (cross entropy -- see section \ref{xent}).
+% Best single decision tree turned out to have only 2 splits (see figure \ref{fig:single}).
 
-TODO
+% TODO
 % Decision trees (and random forests) are trying to use these noisy variables
 % by greedily splitting them by some information-gain-like measurement.
 % hence they accuracy is similar or lower than accuracy of
