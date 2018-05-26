@@ -95,10 +95,6 @@ calcClustering <- function(dataset) {
     km <- kmeans(df, centers=rbind(c(-1,-1), c(1,1)))
     kmeansRes<-factor(km$cluster)
     s.class(df,fac=kmeansRes, add.plot=TRUE, col=rainbow(nlevels(kmeansRes)))
-
-    # ret <- dataset[ , -which(names(dataset) %in% c("Walc","Dalc"))]
-    # ret$Drink <- km$cluster
-    # ret
 }
 
 # convert 2 ordinal attributes (Walc, Dalc) to 1 binary (Drink)

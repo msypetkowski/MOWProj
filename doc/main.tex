@@ -31,12 +31,12 @@
 Research is done with dataset: \url{https://www.kaggle.com/uciml/student-alcohol-consumption/}.
 
 The data were obtained in a survey of students
-math and portuguese language courses in secondary school.
+math and Portuguese language courses in secondary school.
 It contains a lot of interesting social,
 gender and study information about students.
 
 The dataset contains in total 395 math-course-students samples and 
-649 portugese-language-studens samples. Each sample has 33 atributes.
+649 Portuguese-language-students samples. Each sample has 33 attributes.
 
 There are several (382) students that belong to both datasets.
 These students can be identified by searching for identical attributes
@@ -70,7 +70,7 @@ The dataset provides 2 attributes:
 \end{itemize}
 2D histogram visualization is shown on figure \ref{fig:hist2D}.
 
-First, we standarize Dalc and Walc attributes.
+First, we standardize Dalc and Walc attributes.
 Using k-means algorithm (k=2) with initial centers in (-1,-1) and (1,1), we got clustering as shown in figure \ref{fig:clust}.
 In the end, we classify 45.3\% of the students as drinking with proposed clustering.
 The results of this clustering may be considered commonsensial.
@@ -99,7 +99,7 @@ The results of this clustering may be considered commonsensial.
 
 \section{Measuring single attributes entropy}
 \label{xent}
-First, we check how the class is depenent on each single nominal attribute.
+First, we check how the class is dependent on each single nominal attribute.
 
 Figure \ref{fig:nominalIG} shows information gain values
 of single splits by each nominal attribute (in the context of class Drink described in section \ref{clust}).
@@ -148,7 +148,7 @@ We experimented with:
         (the lower cp is, the more complex the model is)
     \item minbucket - the minimum number of observations in any terminal node
     \item maxdepth - maximum tree depth
-    \item split - method for calculating how good is a division (Gini index or enthropy)
+    \item split - method for calculating how good is a division (Gini index or entropy)
 \end{enumerate}
 In accuracy measuring, we use cross-validation with 8 partitions
 and 10 repetitions (random shuffles of dataset before partitioning).
@@ -160,7 +160,7 @@ and 10 repetitions (random shuffles of dataset before partitioning).
 
 Results for all trained decision trees are shown in table \ref{table:singleResults}.
 Standard deviation, min, and max error values doesn't reveal any models
-particurarly stable or standing out in any other way.
+particularly stable or standing out in any other way.
 Best mean error is around 33\%.
 We observed that in single trees with lowest mean error 2 attributes are most important:
 \begin{itemize}
@@ -206,7 +206,7 @@ and 10 repetitions (similarly as in \ref{expSingle}).
 We experimented with:
 \begin{enumerate}
     \item ntree - number of trees in forest
-    \item nodesize - minimum size (number of assiociated examples) of terminal nodes.
+    \item nodesize - minimum size (number of associated examples) of terminal nodes.
     % \item seed - seed used when building a tree
     %         In case of small random forests, it may be important to experiment with different random seed.
     %         Some implementations may use separate random generator objects for each tree, so that
@@ -221,7 +221,7 @@ We experimented with:
 \label{singleConc}
 Results for all tested random forests are shown in table \ref{table:forestResults}.
 Standard deviation, min, and max error values doesn't reveal any random forests, which are
-particurarly stable or stand out in any other way.
+particularly stable or stand out in any other way.
 Best mean error rate is around 30\%.
 
 Random forests doesn't produce better results than single decision trees.
@@ -290,7 +290,7 @@ Mjob.
 
 We repeated the experiments with single trees and random forests.
 Results of best classifiers of each type remains similar 
-(mean error around 33\% for single trees, and 30\% for ramdom forests).
+(mean error around 33\% for single trees, and 30\% for random forests).
 
 
 \section{Conclusion}
@@ -298,9 +298,9 @@ Random forests doesn't perform well on this dataset.
 They produce results are slightly better (mean error rate around 30\%)
 than for single decision trees (33\%).
 
-Since random forest is widely used algorihm with many successes, we suspect
+Since random forest is widely used algorithm with many successes, we suspect
 that it is hard or impossible to find significantly better
-sudent alcohol consumption classification rule
+student alcohol consumption classification rule
 with our dataset.
 
 % Random forests doesn't perform well on this dataset (no better than single decision trees).
