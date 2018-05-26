@@ -35,15 +35,15 @@ math and portuguese language courses in secondary school.
 It contains a lot of interesting social,
 gender and study information about students.
 
-There are several (382) students that belong to both datasets.
-These students can be identified by searching for identical attributes
-that characterize each student, as shown in the annexed R file.
-
 The dataset contains in total 395 math-course-students samples and 
 649 portugese-language-studens samples. Each sample has 33 atributes.
 
-For experiments, we merged both tables removing duplicate students.
-We replace students grades attributes
+There are several (382) students that belong to both datasets.
+These students can be identified by searching for identical attributes
+that characterize each student.
+
+For experiments, we merged both tables.
+We replaced students grades attributes
 (\texttt{G1}, \texttt{G2} and \texttt{G3})
 with
 \texttt{M\_G1},
@@ -52,10 +52,10 @@ with
 \texttt{P\_G1},
 \texttt{P\_G2} and
 \texttt{P\_G3}.
-Attribute \texttt{paid} also concerns particular course, so we split it into
+Attribute \texttt{paid} also concerns particular course, so we create attributes
 \texttt{M\_paid} and \texttt{P\_paid}.
-Since randomForest package (see section \ref{forest}) doesn't support surrogate splits,
-missing values are replaced with mean in case of grades and by mode in case of paid attribute.
+Since randomForest package (see section \ref{forest}) doesn't support missing variables handling (e.g. surrogate splits),
+they are replaced with mean value in case of grades and by mode value in case of paid attribute.
 Final dataset consists of 662 examples (37 attributes).
 
 \subsection{Clustering Dalc and Walc attributes into one binary attribute}
@@ -84,15 +84,17 @@ The results of this clustering may be considered commonsensial.
 \begin{figure}[!hbt]
     \centering
     \includegraphics[page=1,width=0.5\textwidth]{../Rplots.pdf}
+    \caption[]{2D histogram of Dalc and Walc attributes
     \label{fig:hist2D}
-    \caption[]{2D histogram of Dalc and Walc attributes}
+    }
 \end{figure}
 
 \begin{figure}[!hbt]
     \centering
     \includegraphics[page=2,width=0.5\textwidth]{../Rplots.pdf}
+    \caption[]{Clustering with k-means algorithm. (1: non-drinking, 2: drinking)
     \label{fig:clust}
-    \caption[]{Clustering with k-means algorithm. (1: non-drinking, 2: drinking)}
+    }
 \end{figure}
 
 \section{Measuring single attributes entropy}
@@ -157,13 +159,16 @@ and 10 repetitions (random shuffles of dataset before partitioning).
 \label{singleConc}
 
 Results for all trained decision trees are shown in table \ref{table:singleResults}.
-Trees with lowest error are simple and we can see that 2 attributes are most important:
+Standard deviation, min, and max error values doesn't reveal any models
+particurarly stable or standing out in any other way.
+Best mean error is around 33\%.
+We observed that in single trees with lowest mean error 2 attributes are most important:
 \begin{itemize}
     \item goout - going out with friends (numeric: from 1 - very low to 5 - very high).
         Splits with this attribute are done by comparing value of this attribute to 3.5
         (less or equal 3 or higher than 3).
     \item sex - student's sex (binary: 'F' - female or 'M' - male).
-        Trees use generalization, such that female students are less likely to drink alcochol.
+        Trees use generalization, such that female students are less likely to drink alcohol.
 \end{itemize}
 Tree with lowest mean error is shown in figure \ref{fig:single}.
 
@@ -171,8 +176,9 @@ Tree with lowest mean error is shown in figure \ref{fig:single}.
     \centering
     % \includegraphics[trim={2cm 2cm 2cm 2cm},clip,page=3,width=0.5\textwidth]{../Rplots.pdf}
     \includegraphics[trim={1cm 1cm 1cm 1cm},clip,page=3,width=0.5\textwidth]{../Rplots.pdf}
+    \caption[]{Single decision tree with lowest mean error
     \label{fig:single}
-    \caption[]{Single decision tree with lowest mean error}
+    }
 \end{figure}
 
 % \begin{figure}[]
@@ -214,6 +220,9 @@ We experimented with:
 \subsection{Results}
 \label{singleConc}
 Results for all tested random forests are shown in table \ref{table:forestResults}.
+Standard deviation, min, and max error values doesn't reveal any random forests, which are
+particurarly stable or stand out in any other way.
+Best mean error rate is around 30\%.
 
 Random forests doesn't produce better results than single decision trees.
 % Moreover, mtry parameter equals total attributes count.
@@ -281,13 +290,18 @@ Mjob.
 
 We repeated the experiments with single trees and random forests.
 Results of best classifiers of each type remains similar 
-(33\% for single trees, and 30\% for ramdom forests).
+(mean error around 33\% for single trees, and 30\% for ramdom forests).
 
 
 \section{Conclusion}
 Random forests doesn't perform well on this dataset.
-Results are slightly better than single decision trees --
-single trees achieve around 33\% accuracy, and random forests 30\%.
+They produce results are slightly better (mean error rate around 30\%)
+than for single decision trees (33\%).
+
+Since random forest is widely used algorihm with many successes, we suspect
+that it is hard or impossible to find significantly better
+sudent alcohol consumption classification rule
+with our dataset.
 
 % Random forests doesn't perform well on this dataset (no better than single decision trees).
 % Most attributes are noisy in terms of single splits (cross entropy -- see section \ref{xent}).
@@ -296,7 +310,7 @@ single trees achieve around 33\% accuracy, and random forests 30\%.
 % TODO
 % Decision trees (and random forests) are trying to use these noisy variables
 % by greedily splitting them by some information-gain-like measurement.
-% hence they accuracy is similar or lower than accuracy of
+% hence their accuracy is similar or lower than accuracy of
 % a simple decision tree.
 
 
