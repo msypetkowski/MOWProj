@@ -22,18 +22,12 @@ getData <- function(id) {
         names(d)[names(d) == 'G2'] <- 'M_G2'
         names(d)[names(d) == 'G3'] <- 'M_G3'
         names(d)[names(d) == 'paid'] <- 'M_paid'
-        # d$P_G1 = NA
-        # d$P_G2 = NA
-        # d$P_G3 = NA
     } else {
         d=read.table("student-por.csv",sep=",",header=TRUE)
         names(d)[names(d) == 'G1'] <- 'P_G1'
         names(d)[names(d) == 'G2'] <- 'P_G2'
         names(d)[names(d) == 'G3'] <- 'P_G3'
         names(d)[names(d) == 'paid'] <- 'P_paid'
-        # d$M_G1 = NA
-        # d$M_G2 = NA
-        # d$M_G3 = NA
     }
     d
 }
@@ -135,13 +129,12 @@ walcDalcToDrink <- function(dataset) {
 }
 
 # returns predict function with 1 param - testset
-trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.01, minbucket=15, maxdepth=5, split="gini") {
+trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.01, minbucket=15, maxdepth=15, split="gini") {
     param <- Drink ~ (school+sex+age+address+famsize+Pstatus+Medu+Fedu+Mjob+Fjob
                     +reason+guardian+traveltime+studytime+failures+schoolsup+famsup
                     +M_paid+P_paid+activities+nursery+higher+internet+romantic+famrel+freetime+goout+health+absences
                     +M_G1+M_G2+M_G3+P_G1+P_G2+P_G3)
                     # +G1+G2+G3)
-    # tr <- rpart(param,data = dataset,method="class",control =rpart.control(minsplit = 30,minbucket=12, cp=0.005,maxdepth=10))
     tr <- rpart(param,data = dataset,method="class",control = rpart.control(
                                     cp=cp,
                                     minsplit = minbucket*2,
@@ -160,7 +153,7 @@ trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.01, minbucket=15
 
 # returns predict function with 1 param - testset
 
-trainRandomForestClssifier <- function(trainset, draw=FALSE, ntree=500, nodesize=10, mtry=10, maxnodes=500) {
+trainRandomForestClssifier <- function(trainset, draw=FALSE, ntree=500, nodesize=10, mtry=6, maxnodes=30) {
     param <- Drink ~ (school+sex+age+address+famsize+Pstatus+Medu+Fedu+Mjob+Fjob
                     +reason+guardian+traveltime+studytime+failures+schoolsup+famsup
                     +M_paid+P_paid+activities+nursery+higher+internet+romantic+famrel+freetime+goout+health+absences
@@ -169,7 +162,7 @@ trainRandomForestClssifier <- function(trainset, draw=FALSE, ntree=500, nodesize
     if (draw) {
         varImpPlot(fit)
         # plot(fit)
-        # print(getTree(fit, k=1, labelVar=F))
+        print(getTree(fit, k=1, labelVar=F))
     }
     predFun <- function(testset) {
         predict(fit, testset)
@@ -249,11 +242,10 @@ decTreeTest <- function(dataset1) {
 
 forestTest <- function(dataset1) {
     # train many random forests
-    paramNtree = list(1, 5, 50, 500)
+    paramNtree = list(20, 60, 500)
     paramNodesize = list(1, 10)
-    # paramSeed = list(1, 2, 3, 4, 5)
-    paramMtry = list(1, 6, 10, 37)
-    paramMaxnodes = list(5, 10, 30, 500)
+    paramMtry = list(6, 10, 37)
+    paramMaxnodes = list(8, 30, 500)
     records <- apply(expand.grid(paramNtree, paramNodesize, paramMtry, paramMaxnodes), 1, FUN = function(x) {
         samples <- doExperiment(dataset1, function(ds) {
                     trainRandomForestClssifier(ds, ntree=x[[1]], nodesize=x[[2]], mtry=x[[3]], maxnodes=x[[4]])
@@ -319,7 +311,6 @@ measureSingleSplits <- function(dataset) {
             res = t.test(dataset[dataset$Drink=="1", name],
                          dataset[dataset$Drink=="2", name])
             ttestRecords[[length(ttestRecords) + 1L]] <- data.frame(name, res$p.value)
-            # ttestRecords[[length(ttestRecords) + 1L]] <- data.frame(name, res$t)
         }
     }
     # print(records)
