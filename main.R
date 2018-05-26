@@ -128,13 +128,20 @@ walcDalcToDrink <- function(dataset) {
     ret
 }
 
-# returns predict function with 1 param - testset
-trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.01, minbucket=15, maxdepth=15, split="gini") {
+getParam <- function() {
     param <- Drink ~ (school+sex+age+address+famsize+Pstatus+Medu+Fedu+Mjob+Fjob
                     +reason+guardian+traveltime+studytime+failures+schoolsup+famsup
                     +M_paid+P_paid+activities+nursery+higher+internet+romantic+famrel+freetime+goout+health+absences
                     +M_G1+M_G2+M_G3+P_G1+P_G2+P_G3)
-                    # +G1+G2+G3)
+    # param <- Drink ~ (sex+Fjob+higher+famsize+reason
+    #                +goout+P_G1+P_G2+P_G3+M_G1+M_G2+M_G3+studytime+absences
+    #                 +freetime+famrel+health+age+M_G1+nursery+M_paid+Mjob)
+    param
+}
+
+# returns predict function with 1 param - testset
+trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.01, minbucket=15, maxdepth=15, split="gini") {
+    param <- getParam()
     tr <- rpart(param,data = dataset,method="class",control = rpart.control(
                                     cp=cp,
                                     minsplit = minbucket*2,
@@ -154,10 +161,7 @@ trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.01, minbucket=15
 # returns predict function with 1 param - testset
 
 trainRandomForestClssifier <- function(trainset, draw=FALSE, ntree=500, nodesize=10, mtry=6, maxnodes=30) {
-    param <- Drink ~ (school+sex+age+address+famsize+Pstatus+Medu+Fedu+Mjob+Fjob
-                    +reason+guardian+traveltime+studytime+failures+schoolsup+famsup
-                    +M_paid+P_paid+activities+nursery+higher+internet+romantic+famrel+freetime+goout+health+absences
-                    +M_G1+M_G2+M_G3+P_G1+P_G2+P_G3)
+    param <- getParam()
     fit <- randomForest(param, data=trainset, importance=draw, ntree=ntree, nodesize=nodesize, mtry=mtry, maxnodes=maxnodes)
     if (draw) {
         varImpPlot(fit)

@@ -58,7 +58,7 @@ Since randomForest package (see section \ref{forest}) doesn't support surrogate 
 missing values are replaced with mean in case of grades and by mode in case of paid attribute.
 Final dataset consists of 662 examples (37 attributes).
 
-\section{Clustering Dalc and Walc attributes into one binary attribute}
+\subsection{Clustering Dalc and Walc attributes into one binary attribute}
 \label{clust}
 
 We aim to build a model that would perform binary classification --
@@ -95,7 +95,7 @@ The results of this clustering may be considered commonsensial.
     \caption[]{Clustering with k-means algorithm. (1: non-drinking, 2: drinking)}
 \end{figure}
 
-\section{Single attributes}
+\section{Measuring single attributes entropy}
 \label{xent}
 First, we check how the class is depenent on each single nominal attribute.
 
@@ -227,8 +227,9 @@ is shown in figure \ref{fig:importance}.
 \begin{figure}[!hbt]
     \centering
     \includegraphics[trim={0 0 0 2cm},clip,page=4,width=0.5\textwidth]{../Rplots.pdf}
+    \caption[]{Variable (attribute) importance plot for random forest with lowest mean error
     \label{fig:importance}
-    \caption[]{Variable (attribute) importance plot for random forest with lowest mean error}
+    }
 \end{figure}
 
 
@@ -246,9 +247,49 @@ is shown in figure \ref{fig:importance}.
 %     \label{fig:imp2}
 % \end{figure}
 % 
-\section{Conclusion}
 
-Random forests doesn't perform well on this dataset (no better than single decision trees).
+\section{Feature selection}
+We performed experiment where we exclude attributes that
+doesn't affect performance significantly.
+We empirically select the attributes which seem to have some importance in the context of
+values shown in figures \ref{fig:nominalIG}, \ref{fig:pval}, \ref{fig:importance},
+and attributes used by our best single decision tree shown in figure \ref{fig:single}.
+
+We select nominal attributes:
+sex,
+Fjob,
+higher,
+famsize,
+reason; and numeric:
+goout,
+P\_G1,
+P\_G2,
+P\_G3,
+M\_G1,
+M\_G2,
+M\_G3,
+studytime,
+absences,
+freetime,
+famrel,
+health,
+age,
+M\_G1,
+nursery,
+M\_paid,
+Mjob.
+
+We repeated the experiments with single trees and random forests.
+Results of best classifiers of each type remains similar 
+(33\% for single trees, and 30\% for ramdom forests).
+
+
+\section{Conclusion}
+Random forests doesn't perform well on this dataset.
+Results are slightly better than single decision trees --
+single trees achieve around 33\% accuracy, and random forests 30\%.
+
+% Random forests doesn't perform well on this dataset (no better than single decision trees).
 % Most attributes are noisy in terms of single splits (cross entropy -- see section \ref{xent}).
 % Best single decision tree turned out to have only 2 splits (see figure \ref{fig:single}).
 
