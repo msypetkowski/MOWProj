@@ -1,11 +1,8 @@
 # Simple experiment
 require(randomForest)
-# require(ggplot2)
-# require(cluster)
 library(ade4)
 library(rpart)
 library(rattle)
-# require(rpart.plot)
 library(ggplot2)
 library(xtable)
 

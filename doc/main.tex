@@ -31,12 +31,12 @@
 Research is done with dataset: \url{https://www.kaggle.com/uciml/student-alcohol-consumption/}.
 
 The data were obtained in a survey of students
-math and Portuguese language courses in secondary school.
+math and portuguese language courses in secondary school.
 It contains a lot of interesting social,
 gender and study information about students.
 
 The dataset contains in total 395 math-course-students samples and 
-649 Portuguese-language-students samples. Each sample has 33 attributes.
+649 portuguese-language-students samples. Each sample has 33 attributes.
 
 There are several (382) students that belong to both datasets.
 These students can be identified by searching for identical attributes
@@ -52,7 +52,7 @@ with
 \texttt{P\_G1},
 \texttt{P\_G2} and
 \texttt{P\_G3}.
-Attribute \texttt{paid} also concerns particular course, so we create attributes
+Attribute \texttt{paid} also concerns particular course, so we created attributes
 \texttt{M\_paid} and \texttt{P\_paid}.
 Since randomForest package (see section \ref{forest}) doesn't support missing variables handling (e.g. surrogate splits),
 they are replaced with mean value in case of grades and by mode value in case of paid attribute.
@@ -73,7 +73,7 @@ The dataset provides 2 attributes:
 First, we standardize Dalc and Walc attributes.
 Using k-means algorithm (k=2) with initial centers in (-1,-1) and (1,1), we got clustering as shown in figure \ref{fig:clust}.
 In the end, we classify 45.3\% of the students as drinking with proposed clustering.
-The results of this clustering may be considered commonsensial.
+The results of this clustering may be considered proper in the context of common sense.
 
 
 % TODO: think about following
@@ -104,7 +104,8 @@ First, we check how the class is dependent on each single nominal attribute.
 Figure \ref{fig:nominalIG} shows information gain values
 of single splits by each nominal attribute (in the context of class Drink described in section \ref{clust}).
 As we can see, sex of the students gives significantly bigger information gain
-than the other nominal attributes.
+than the other nominal attributes, hence it may be very important attribute
+in classification.
 
 % Table \ref{table:nominalIG} shows information gain values for all nominal attributes.
 % \input{../nominalIG}
@@ -135,7 +136,7 @@ in the context of our classification problem.
 \section{Experiments with single decision trees}
 \label{expSingle}
 
-Accuracy of decision tree shouldn't give better results than random forest,
+Accuracy of a single decision tree in general shouldn't be better than in case of random forest,
 so we trained several single decision trees to establish
 an upper limit of desired error rate for random forests.
 
@@ -146,9 +147,9 @@ We experimented with:
     \item cp - complexity parameter.
         Any split that does not decrease the overall lack of fit by a factor of cp is not attempted
         (the lower cp is, the more complex the model is)
-    \item minbucket - the minimum number of observations in any terminal node
+    \item minbucket - minimum number of observations in any terminal node
     \item maxdepth - maximum tree depth
-    \item split - method for calculating how good is a division (Gini index or entropy)
+    \item split - method for calculating how good the split is(Gini index or entropy)
 \end{enumerate}
 In accuracy measuring, we use cross-validation with 8 partitions
 and 10 repetitions (random shuffles of dataset before partitioning).
@@ -170,13 +171,13 @@ We observed that in single trees with lowest mean error 2 attributes are most im
     \item sex - student's sex (binary: 'F' - female or 'M' - male).
         Trees use generalization, such that female students are less likely to drink alcohol.
 \end{itemize}
-Tree with lowest mean error is shown in figure \ref{fig:single}.
+Tree generated on the whole dataset with parameters producing lowest mean error is shown in figure \ref{fig:single}.
 
 \begin{figure}[!hbt]
     \centering
     % \includegraphics[trim={2cm 2cm 2cm 2cm},clip,page=3,width=0.5\textwidth]{../Rplots.pdf}
     \includegraphics[trim={1cm 1cm 1cm 1cm},clip,page=3,width=0.5\textwidth]{../Rplots.pdf}
-    \caption[]{Single decision tree with lowest mean error
+    \caption[]{Single decision tree built with parameters that give lowest mean error
     \label{fig:single}
     }
 \end{figure}
@@ -224,19 +225,20 @@ Standard deviation, min, and max error values doesn't reveal any random forests,
 particularly stable or stand out in any other way.
 Best mean error rate is around 30\%.
 
-Random forests doesn't produce better results than single decision trees.
+% Random forests doesn't produce better results than single decision trees.
 % Moreover, mtry parameter equals total attributes count.
 % In results, such random forests have similar properties to single decision trees.
 % We found out, that the trees in such forests use mostly splits as
 % in case of best single decision trees (see section \ref{singleConc})
-Variable importance plot for best random forest parameters (that we have found)
+Variable importance plot for a random forest built on the whole dataset
+with parameters that give lowest mean error,
 is shown in figure \ref{fig:importance}.
 
 
 \begin{figure}[!hbt]
     \centering
     \includegraphics[trim={0 0 0 2cm},clip,page=4,width=0.5\textwidth]{../Rplots.pdf}
-    \caption[]{Variable (attribute) importance plot for random forest with lowest mean error
+    \caption[]{Variable (attribute) importance plot for random forest build with parameters giving lowest mean error
     \label{fig:importance}
     }
 \end{figure}
@@ -259,7 +261,7 @@ is shown in figure \ref{fig:importance}.
 
 \section{Feature selection}
 We performed experiment where we exclude attributes that
-doesn't affect performance significantly.
+seem not significant in our classification task.
 We empirically select the attributes which seem to have some importance in the context of
 values shown in figures \ref{fig:nominalIG}, \ref{fig:pval}, \ref{fig:importance},
 and attributes used by our best single decision tree shown in figure \ref{fig:single}.
