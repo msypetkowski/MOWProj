@@ -4,9 +4,10 @@
 
 \usepackage{graphicx}
 \usepackage{float}
-\usepackage{hyperref}
 \usepackage{multicol}
+\usepackage{hyperref}
 \usepackage{longtable}
+
 
 
 \usepackage[utf8]{inputenc}
@@ -16,12 +17,14 @@
 \title{Prediction of student's alcohol consumption with random forests}
 
 \author{Mikołaj Ciesielski, Michał Sypetkowski}
+\setlength\columnsep{0.375in}  \newlength\titlebox \setlength\titlebox{2.25in}
+\twocolumn
 \maketitle
 
 % \tableofcontents
 % \newpage
 
-\begin{multicols}{2}
+% \begin{multicols}{2}
 
 \section{Data}
 
@@ -40,14 +43,15 @@ The dataset contains in total 395 math-course-students samples and
 649 portugese-language-studens samples. Each sample has 33 atributes.
 
 For experiments, we merged both tables removing duplicate students.
-We split students grades attributes into
+We replace students grades attributes
+(\texttt{G1}, \texttt{G2} and \texttt{G3})
+with
 \texttt{M\_G1},
 \texttt{M\_G2},
 \texttt{M\_G3},
 \texttt{P\_G1},
 \texttt{P\_G2} and
-\texttt{P\_G3} instead of
-\texttt{G1}, \texttt{G2} and \texttt{G3}.
+\texttt{P\_G3}.
 Attribute \texttt{paid} also concerns particular course, so we split it into
 \texttt{M\_paid} and \texttt{P\_paid}.
 Since randomForest package (see section \ref{forest}) doesn't support surrogate splits,
@@ -77,21 +81,21 @@ The results may be considered commonsensial.
 % (\url{https://en.wikipedia.org/wiki/Silhouette_(clustering)}).
 % We use L2 distance.
 
-\begin{figure}[H]
+\begin{figure}[!hbt]
     \centering
     \includegraphics[page=1,width=0.5\textwidth]{../Rplots.pdf}
     \label{fig:hist2D}
     \caption[]{2D histogram of Dalc and Walc attributes}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!hbt]
     \centering
     \includegraphics[page=2,width=0.5\textwidth]{../Rplots.pdf}
     \label{fig:clust}
     \caption[]{Clustering with k-means algorithm. (1: non-drinking, 2: drinking)}
 \end{figure}
 
-\subsection{Single splits information gain}
+\section{Single attributes}
 \label{xent}
 First, we check how the class is depenent on each single nominal attribute.
 
@@ -103,7 +107,7 @@ than the other nominal attributes.
 % Table \ref{table:nominalIG} shows information gain values for all nominal attributes.
 % \input{../nominalIG}
 
-\begin{figure}[H]
+\begin{figure}[!hbt]
     \centering
     \includegraphics[page=5,width=0.5\textwidth]{../Rplots.pdf}
     \caption[]{Information gain values for all nominal attributes
@@ -111,7 +115,7 @@ than the other nominal attributes.
     }
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!hbt]
     \centering
     \includegraphics[page=6,width=0.5\textwidth]{../Rplots.pdf}
     \caption[]{P-values for all numeric attributes
@@ -163,7 +167,7 @@ Trees with lowest error are simple and we can see that 2 attributes are most imp
 \end{itemize}
 Such tree is shown in figure \ref{fig:single}.
 
-\begin{figure}[H]
+\begin{figure}[!hbt]
     \centering
     % \includegraphics[trim={2cm 2cm 2cm 2cm},clip,page=3,width=0.5\textwidth]{../Rplots.pdf}
     \includegraphics[trim={1cm 1cm 1cm 1cm},clip,page=3,width=0.5\textwidth]{../Rplots.pdf}
@@ -220,7 +224,7 @@ Variable importance plot for best random forest parameters (that we have found)
 is shown in figure \ref{fig:importance}.
 
 
-\begin{figure}[H]
+\begin{figure}[!hbt]
     \centering
     \includegraphics[trim={0 0 0 2cm},clip,page=4,width=0.5\textwidth]{../Rplots.pdf}
     \label{fig:importance}
@@ -255,8 +259,9 @@ Random forests doesn't perform well on this dataset (no better than single decis
 % a simple decision tree.
 
 
-\end{multicols}
+% \end{multicols}
 
+\onecolumn
 \newpage
 \appendix
 \section{All single tree classifiers results}
