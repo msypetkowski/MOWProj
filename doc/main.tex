@@ -37,18 +37,22 @@ These students can be identified by searching for identical attributes
 that characterize each student, as shown in the annexed R file.
 
 The dataset contains in total 395 math-course-students samples and 
-649 portugese-language-studens samples.
+649 portugese-language-studens samples. Each sample has 33 atributes.
 
 For experiments, we merged both tables removing duplicate students.
-Final dataset consists of 662 examples.
-
-% \texttt{M\_G1},
-% \texttt{M\_G2},
-% \texttt{M\_G3},
-% \texttt{P\_G1},
-% \texttt{P\_G2} and
-% \texttt{P\_G3} instead of
-% \texttt{G1}, \texttt{G2} and \texttt{G3}.
+We split students grades attributes into
+\texttt{M\_G1},
+\texttt{M\_G2},
+\texttt{M\_G3},
+\texttt{P\_G1},
+\texttt{P\_G2} and
+\texttt{P\_G3} instead of
+\texttt{G1}, \texttt{G2} and \texttt{G3}.
+Attribute \texttt{paid} also concerns particular course, so we split it into
+\texttt{M\_paid} and \texttt{P\_paid}.
+Since randomForest package (see section \ref{forest}) doesn't support surrogate splits,
+missing values are replaced with mean in case of grades and by mode in case of paid attribute.
+Final dataset consists of 662 examples (37 attributes).
 
 \section{Clustering Dalc and Walc attributes into one binary attribute}
 \label{clust}
@@ -184,7 +188,8 @@ Such tree is shown in figure \ref{fig:single}.
 % 
 % \newpage
 \section{Experiments with random forests}
-We randomForest\footnote{\url{https://cran.r-project.org/web/packages/randomForest/randomForest.pdf}} package for the experiments.
+\label{forest}
+We used randomForest\footnote{\url{https://cran.r-project.org/web/packages/randomForest/randomForest.pdf}} package for the experiments.
 We trained many models (with different parameters).
 In accuracy measuring, we use cross-validation with 8 partitions
 and 10 repetitions (similarly as in \ref{expSingle}).

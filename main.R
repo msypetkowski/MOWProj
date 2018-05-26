@@ -16,38 +16,76 @@ joinDataframes <- function(listOfDf) {
 
 # returns dataset (one of 2 possible)
 getData <- function(id) {
-    d1=read.table("student-mat.csv",sep=",",header=TRUE)
-    d2=read.table("student-por.csv",sep=",",header=TRUE)
     if (id == 1) {
-        # names(d1)[names(d1) == 'G1'] <- 'M_G1'
-        # names(d1)[names(d1) == 'G2'] <- 'M_G2'
-        # names(d1)[names(d1) == 'G3'] <- 'M_G3'
-        # d1$P_G1 = NA
-        # d1$P_G2 = NA
-        # d1$P_G3 = NA
-        dataset <- d1
+        d=read.table("student-mat.csv",sep=",",header=TRUE)
+        names(d)[names(d) == 'G1'] <- 'M_G1'
+        names(d)[names(d) == 'G2'] <- 'M_G2'
+        names(d)[names(d) == 'G3'] <- 'M_G3'
+        names(d)[names(d) == 'paid'] <- 'M_paid'
+        # d$P_G1 = NA
+        # d$P_G2 = NA
+        # d$P_G3 = NA
     } else {
-        # names(d2)[names(d2) == 'G1'] <- 'P_G1'
-        # names(d2)[names(d2) == 'G2'] <- 'P_G2'
-        # names(d2)[names(d2) == 'G3'] <- 'P_G3'
-        # d2$M_G1 = NA
-        # d2$M_G2 = NA
-        # d2$M_G3 = NA
-        dataset <- d2
+        d=read.table("student-por.csv",sep=",",header=TRUE)
+        names(d)[names(d) == 'G1'] <- 'P_G1'
+        names(d)[names(d) == 'G2'] <- 'P_G2'
+        names(d)[names(d) == 'G3'] <- 'P_G3'
+        names(d)[names(d) == 'paid'] <- 'P_paid'
+        # d$M_G1 = NA
+        # d$M_G2 = NA
+        # d$M_G3 = NA
     }
-    dataset
+    d
+}
+
+modefunc <- function(x){
+    tabresult <- tabulate(x)
+    themode <- which(tabresult == max(tabresult))
+    return(levels(x)[themode])
 }
 
 # returns merged dataset
 mergedData <- function(d1, d2) {
-    # G1, G2, G3 are different in both tables
-    dataset <- rbind(d1, d2)
-    # remove duplicate rows (basing on some collumns)
-    oldNrow = nrow(dataset)
+    print("Total math and portugese students datasets columns count:")
+    print(length(names(d1)))
+    print(length(names(d2)))
+
     duplicateCriteria = c("school","sex","age","address","famsize","Pstatus","Medu","Fedu","Mjob","Fjob","reason","nursery","internet")
+    additional1 = c("M_G1", "M_G2", "M_G3", "M_paid")
+    additional2 = c("P_G1", "P_G2", "P_G3", "P_paid")
+    dataset1 <- merge(d1, d2[, c(duplicateCriteria, additional2)], by=duplicateCriteria, all.x=TRUE)
+    dataset2 <- merge(d2, d1[, c(duplicateCriteria, additional1)], by=duplicateCriteria, all.x=TRUE)
+    dataset <- rbind(dataset1, dataset2)
     dataset <- dataset[!duplicated(dataset[duplicateCriteria]),]
-    nrow(dataset)
-    stopifnot(oldNrow - nrow(dataset) == 382) # as written in description on kaggle
+
+    print("Total math and students:")
+    print(nrow(d1))
+    print(nrow(d2))
+    print("Total new dataset rows:")
+    print(nrow(dataset))
+    print("Duplicate students count:")
+    print(nrow(d1) + nrow(d2) - nrow(dataset))
+    print("New dataset columns count:")
+    print(length(names(dataset)))
+    print("New dataset columns:")
+    print(names(dataset))
+
+    stopifnot(nrow(d1) + nrow(d2) - nrow(dataset) == 382) # as written in description on kaggle
+
+    # replace <NA> values with mean or mode values
+    for(name in c(additional1, additional2)) {
+        column <- dataset[,name]
+        lev <- levels(dataset[,name])
+        if (!is.null(lev)) {
+            # nominal
+            mo <- modefunc(column[!is.na(column)])
+            print(mo)
+            dataset[is.na(column), name] <- mo
+        } else {
+            # numeric
+            dataset[is.na(column), name] <- mean(column, na.rm = TRUE)
+        }
+    }
     dataset
 }
 
@@ -100,8 +138,9 @@ walcDalcToDrink <- function(dataset) {
 trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.01, minbucket=15, maxdepth=5, split="gini") {
     param <- Drink ~ (school+sex+age+address+famsize+Pstatus+Medu+Fedu+Mjob+Fjob
                     +reason+guardian+traveltime+studytime+failures+schoolsup+famsup
-                    +paid+activities+nursery+higher+internet+romantic+famrel+freetime+goout+health+absences
-                    +G1+G2+G3) # +M_G1+M_G2+M_G3+P_G1+P_G2+P_G3)
+                    +M_paid+P_paid+activities+nursery+higher+internet+romantic+famrel+freetime+goout+health+absences
+                    +M_G1+M_G2+M_G3+P_G1+P_G2+P_G3)
+                    # +G1+G2+G3)
     # tr <- rpart(param,data = dataset,method="class",control =rpart.control(minsplit = 30,minbucket=12, cp=0.005,maxdepth=10))
     tr <- rpart(param,data = dataset,method="class",control = rpart.control(
                                     cp=cp,
@@ -121,12 +160,11 @@ trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.01, minbucket=15
 
 # returns predict function with 1 param - testset
 
-trainRandomForestClssifier <- function(trainset, draw=FALSE, ntree=500, nodesize=10, mtry=10, maxnodes=5000) {
+trainRandomForestClssifier <- function(trainset, draw=FALSE, ntree=500, nodesize=10, mtry=10, maxnodes=500) {
     param <- Drink ~ (school+sex+age+address+famsize+Pstatus+Medu+Fedu+Mjob+Fjob
                     +reason+guardian+traveltime+studytime+failures+schoolsup+famsup
-                    +paid+activities+nursery+higher+internet+romantic+famrel+freetime
-                    +paid+activities+nursery+higher+internet+romantic+famrel+freetime+goout+health+absences
-                    +G1+G2+G3) # +M_G1+M_G2+M_G3+P_G1+P_G2+P_G3)
+                    +M_paid+P_paid+activities+nursery+higher+internet+romantic+famrel+freetime+goout+health+absences
+                    +M_G1+M_G2+M_G3+P_G1+P_G2+P_G3)
     fit <- randomForest(param, data=trainset, importance=draw, ntree=ntree, nodesize=nodesize, mtry=mtry, maxnodes=maxnodes)
     if (draw) {
         varImpPlot(fit)
@@ -214,8 +252,8 @@ forestTest <- function(dataset1) {
     paramNtree = list(1, 5, 50, 500)
     paramNodesize = list(1, 10)
     # paramSeed = list(1, 2, 3, 4, 5)
-    paramMtry = list(1, 6, 10, 38)
-    paramMaxnodes = list(5, 10, 30, 5000)
+    paramMtry = list(1, 6, 10, 37)
+    paramMaxnodes = list(5, 10, 30, 500)
     records <- apply(expand.grid(paramNtree, paramNodesize, paramMtry, paramMaxnodes), 1, FUN = function(x) {
         samples <- doExperiment(dataset1, function(ds) {
                     trainRandomForestClssifier(ds, ntree=x[[1]], nodesize=x[[2]], mtry=x[[3]], maxnodes=x[[4]])
@@ -302,11 +340,14 @@ measureSingleSplits <- function(dataset) {
 }
 
 main <- function() {
+    set.seed(123)
+    data <- mergedData(getData(1), getData(2))
+
     # only draws plots
-    calcClustering(mergedData(getData(1), getData(2)))
+    calcClustering(data)
 
     # get dataset
-    dataset1 = walcDalcToDrink(mergedData(getData(1), getData(2)))
+    dataset1 = walcDalcToDrink(data)
 
     # draw plots
     trainSingleTreeClassifier(dataset1, draw=T)
@@ -315,9 +356,9 @@ main <- function() {
     measureSingleSplits(dataset1);
 
     print("-----------single dec tree experiments")
-    # decTreeTest(dataset1)
+    decTreeTest(dataset1)
     print("-----------random forest experiments")
-    # forestTest(dataset1)
+    forestTest(dataset1)
 }
 
 main()
