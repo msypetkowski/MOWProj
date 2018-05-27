@@ -53,7 +53,7 @@ with
 \texttt{P\_G1},
 \texttt{P\_G2} and
 \texttt{P\_G3}.
-Attribute \texttt{paid} also concerns particular course, so we created attributes
+    Attribute \texttt{paid} (extra paid classes within the course subject) also concerns particular course, so we created attributes
 \texttt{M\_paid} and \texttt{P\_paid}.
 Since randomForest package (see section \ref{forest}) doesn't support missing variables handling (e.g. surrogate splits),
 they are replaced with mean value in case of grades and by mode value in case of paid attribute.
@@ -132,7 +132,7 @@ Figure \ref{fig:pval} shows p-values of t-test significance for numeric attribut
 From this plot, we can decide which attributes are statistically important
 in the context of our classification problem.
 We can see that portuguese language grades show larger importance than math grades.
-This is expected because we have around 2 times more samples from portugese language
+This is expected because we have around 2 times more samples from portuguese language
 class, and we fill missing values with mean value for each attribute (see section \ref{data}).
 
 
@@ -164,10 +164,10 @@ and 10 repetitions (random shuffles of dataset before partitioning).
 \label{singleConc}
 
 Results for all trained decision trees are shown in table \ref{table:singleResults}.
-Standard deviation, min, and max error values doesn't reveal any models
+Standard deviation, min, and max error values don't reveal any models
 particularly stable or standing out in any other way.
 Best mean error is around 33\%.
-We observed that in single trees with lowest mean error 2 attributes are most important:
+We observed that in case of decision trees with lowest mean error, 2 attributes are most important:
 \begin{itemize}
     \item goout - going out with friends (numeric: from 1 - very low to 5 - very high).
         Splits with this attribute are done by comparing value of this attribute to 3.5
@@ -175,6 +175,8 @@ We observed that in single trees with lowest mean error 2 attributes are most im
     \item sex - student's sex (binary: 'F' - female or 'M' - male).
         Trees use generalization, such that female students are less likely to drink alcohol.
 \end{itemize}
+Additionally, students grades attributes and famrel attribute (quality of family relationships)
+shown some usefulness.
 Tree generated on the whole dataset with parameters producing lowest mean error is shown in figure \ref{fig:single}.
 
 \begin{figure}[!hbt]
@@ -225,7 +227,7 @@ We experimented with:
 \subsection{Results}
 \label{singleConc}
 Results for all tested random forests are shown in table \ref{table:forestResults}.
-Standard deviation, min, and max error values doesn't reveal any random forests, which are
+Standard deviation, min, and max error values don't reveal any random forests, which are
 particularly stable or stand out in any other way.
 Best mean error rate is around 30\%.
 
@@ -237,7 +239,12 @@ Best mean error rate is around 30\%.
 Variable importance plot for a random forest built on the whole dataset
 with parameters that give lowest mean error,
 is shown in figure \ref{fig:importance}.
+
 Confusion matrix for such parameters is shown in table \ref{table:convMx}.
+We can see that in practice, our model can filter out non drinking students
+quite efficiently.
+However, in the case when a student is drinking by ground truth, we cannot
+estimate the class efficiently (we have almost equal probabilities).
 
 \begin{table}[!hbt]
     \caption{Confusion matrix (ratio) for random forest built with parameters giving lowest mean error
@@ -286,7 +293,7 @@ We performed experiment where we exclude attributes that
 seem not significant in our classification task.
 We empirically select the attributes which seem to have some importance in the context of
 values shown in figures \ref{fig:nominalIG}, \ref{fig:pval}, \ref{fig:importance},
-and attributes used by our best single decision tree shown in figure \ref{fig:single}.
+and attributes used by our best single decision tree (see figure \ref{fig:single}).
 
 We select nominal attributes:
 sex,
@@ -311,7 +318,6 @@ M\_G1,
 nursery,
 M\_paid,
 Mjob.
-
 We repeated the experiments with single trees and random forests.
 
 \subsection{Results}
@@ -326,7 +332,7 @@ the unimportant attributes properly (unimportant as defined at the beginning of 
 
 
 \section{Conclusion}
-Random forests doesn't perform well on this dataset.
+Random forests don't perform well on this dataset.
 They produce results slightly better (mean error rate around 30\%)
 than single decision trees (33\%).
 
