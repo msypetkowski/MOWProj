@@ -237,12 +237,29 @@ Best mean error rate is around 30\%.
 Variable importance plot for a random forest built on the whole dataset
 with parameters that give lowest mean error,
 is shown in figure \ref{fig:importance}.
+Confusion matrix for such parameters is shown in table \ref{table:convMx}.
+
+\begin{table}[!hbt]
+    \caption{Confusion matrix (ratio) for random forest built with parameters giving lowest mean error
+    \label{table:convMx}
+    }
+\begin{center}
+    \begin{tabular}{| l | l | l |}
+    \hline
+        & non drinking & drinking \\
+    \hline
+        predicted non drinking  & 0.47 & 0.22 \\
+        predicted drinking  &  0.08 & 0.23 \\
+    \hline
+    \end{tabular}
+\end{center}
+\end{table}
 
 
 \begin{figure}[!hbt]
     \centering
     \includegraphics[trim={0 0 0 2cm},clip,page=4,width=0.5\textwidth]{../Rplots.pdf}
-    \caption[]{Variable (attribute) importance plot for random forest build with parameters giving lowest mean error
+    \caption[]{Variable (attribute) importance plot for random forest built with parameters giving lowest mean error
     \label{fig:importance}
     }
 \end{figure}
