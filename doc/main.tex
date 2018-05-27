@@ -27,6 +27,7 @@
 % \begin{multicols}{2}
 
 \section{Data}
+\label{data}
 
 Research is done with dataset: \url{https://www.kaggle.com/uciml/student-alcohol-consumption/}.
 
@@ -130,6 +131,9 @@ in classification.
 Figure \ref{fig:pval} shows p-values of t-test significance for numeric attributes.
 From this plot, we can decide which attributes are statistically important
 in the context of our classification problem.
+We can see that portuguese language grades show larger importance than math grades.
+This is expected because we have around 2 times more samples from portugese language
+class, and we fill missing values with mean value for each attribute (see section \ref{data}).
 
 
 
@@ -190,7 +194,7 @@ Tree generated on the whole dataset with parameters producing lowest mean error 
 % \end{figure}
 % 
 % \begin{figure}[]
-%     \caption[]{Best single decision tree for portugese students that we achieved}
+%     \caption[]{Best single decision tree for portuguese students that we achieved}
 %     \centering
 %     \includegraphics[page=6,width=1.0\textwidth]{../Rplots.pdf}
 %     \label{fig:single2}
@@ -252,7 +256,7 @@ is shown in figure \ref{fig:importance}.
 % \end{figure}
 % 
 % \begin{figure}[]
-%     \caption[]{Variable (attribute) importance plot for portugese language students}
+%     \caption[]{Variable (attribute) importance plot for portuguese language students}
 %     \centering
 %     \includegraphics[page=7,width=1.0\textwidth]{../Rplots.pdf}
 %     \label{fig:imp2}
@@ -260,6 +264,7 @@ is shown in figure \ref{fig:importance}.
 % 
 
 \section{Feature selection}
+\label{featSel}
 We performed experiment where we exclude attributes that
 seem not significant in our classification task.
 We empirically select the attributes which seem to have some importance in the context of
@@ -291,19 +296,32 @@ M\_paid,
 Mjob.
 
 We repeated the experiments with single trees and random forests.
-Results of best classifiers of each type remains similar 
+
+\subsection{Results}
+
+Results of best classifiers of each type (single tree or random forest) remains similar 
 (mean error around 33\% for single trees, and 30\% for random forests).
+Since the results are similar to the results without feature selection,
+we don't include tables with detailed results.
+Moreover, we can say that single trees and random forests handle
+the unimportant attributes properly (unimportant as defined at the beginning of section \ref{featSel}).
+
 
 
 \section{Conclusion}
 Random forests doesn't perform well on this dataset.
-They produce results are slightly better (mean error rate around 30\%)
-than for single decision trees (33\%).
+They produce results slightly better (mean error rate around 30\%)
+than single decision trees (33\%).
 
 Since random forest is widely used algorithm with many successes, we suspect
 that it is hard or impossible to find significantly better
 student alcohol consumption classification rule
 with our dataset.
+High-precision classification in this case, may require more detailed
+student profile or larger dataset.
+Furthermore, the data were obtained in a survey.
+That leads to a suspicion, that there may be a lot of false information in
+what the high-school students have written in a probably anonymous survey.
 
 % Random forests doesn't perform well on this dataset (no better than single decision trees).
 % Most attributes are noisy in terms of single splits (cross entropy -- see section \ref{xent}).
