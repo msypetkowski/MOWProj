@@ -57,7 +57,8 @@ with
 \texttt{M\_paid} and \texttt{P\_paid}.
 Since randomForest package (see section \ref{forest}) doesn't support missing variables handling (e.g. surrogate splits),
 they are replaced with mean value in case of grades and by mode value in case of paid attribute.
-Final dataset consists of 662 examples (37 attributes).
+Dalc and Walc attributes are clustered into one binary attribute -- Drink (see section \ref{clust} for details).
+Final dataset consists of 662 examples (36 attributes including class).
 
 \subsection{Clustering Dalc and Walc attributes into one binary attribute}
 \label{clust}
@@ -85,7 +86,7 @@ The results of this clustering may be considered proper in the context of common
 \begin{figure}[!hbt]
     \centering
     \includegraphics[page=1,width=0.5\textwidth]{../Rplots.pdf}
-    \caption[]{2D histogram of Dalc and Walc attributes
+    \caption[]{2D histogram of Dalc and Walc attributes (standardized)
     \label{fig:hist2D}
     }
 \end{figure}
@@ -332,8 +333,7 @@ the unimportant attributes properly (unimportant as defined at the beginning of 
 
 
 \section{Conclusion}
-Random forests don't perform well on this dataset.
-They produce results slightly better (mean error rate around 30\%)
+Random forests achieve results only slightly better (mean error rate around 30\%)
 than single decision trees (33\%).
 
 Since random forest is widely used algorithm with many successes, we suspect
