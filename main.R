@@ -288,7 +288,7 @@ forestTestDetailedMtry <- function(dataset1) {
     # records <- records[with(records, order(err_mean)), ]
     print(records)
     print(xtable(records, type = "latex",
-                 label="table:forestResults2", caption="Random forests results for various mtry parameter values"),
+                 label="table:forestResults2", caption="Random forest results for various mtry parameter values"),
           file = "forestResults2.tex", caption.placement = "top", include.rownames=FALSE)
     # records <- records[with(records, order(mtry)), ]
     plot(records$mtry, records$err_mean, type="l")
@@ -319,7 +319,7 @@ forestTestDetailedMaxnodes <- function(dataset1) {
     records <- setNames(records, c("maxnodes", "err_mean", "err_sd", "err_min", "err_max"))
     print(records)
     print(xtable(records, type = "latex",
-                 label="table:forestResults2", caption="Random forests results for various mtry parameter values"),
+                 label="table:forestResults2", caption="Random forest results for various maxnodes parameter values"),
           file = "forestResults2.tex", caption.placement = "top", include.rownames=FALSE)
     plot(records$maxnodes, records$err_mean, type="l")
 
@@ -327,6 +327,39 @@ forestTestDetailedMaxnodes <- function(dataset1) {
         with (
             data = records,
             expr = errbar(maxnodes, err_mean, err_mean+err_sd, err_mean-err_sd)
+        )
+}
+binaryEntropy <- function(ratio) {
+    -(ratio * log(ratio + 1e-100) + (1-ratio) * log((1-ratio) + 1e-100))
+}
+
+# train many random forests with various nodesize value (and draw plot)
+forestTestDetailedNodesize <- function(dataset1) {
+    paramNodesize = t(c(1, 1 + 1:10 * 3))
+    records <- apply(paramNodesize, 2, FUN = function(x) {
+        samples <- doExperiment(dataset1, function(ds) {
+                    trainRandomForestClssifier(ds, nodesize=x[[1]])
+        })
+        data.frame(
+                    c(x[[1]]),
+                    c(mean(samples)),
+                    c(sd(samples)),
+                    c(min(samples)),
+                    c(max(samples))
+        )
+    })
+    records <- joinDataframes(records)
+    records <- setNames(records, c("nodesize", "err_mean", "err_sd", "err_min", "err_max"))
+    print(records)
+    print(xtable(records, type = "latex",
+                 label="table:forestResults2", caption="Random forest results for various nodesize parameter values"),
+          file = "forestResults2.tex", caption.placement = "top", include.rownames=FALSE)
+    plot(records$nodesize, records$err_mean, type="l")
+
+    plot(records$nodesize, records$err_mean, type="n")
+        with (
+            data = records,
+            expr = errbar(nodesize, err_mean, err_mean+err_sd, err_mean-err_sd)
         )
 }
 binaryEntropy <- function(ratio) {
@@ -416,6 +449,9 @@ main <- function() {
 
     print("-----------random forest detailed experiments with maxnodes parameter")
     forestTestDetailedMaxnodes(dataset1)
+
+    print("-----------random forest detailed experiments with nodesize parameter")
+    forestTestDetailedNodesize(dataset1)
 }
 
 main()
