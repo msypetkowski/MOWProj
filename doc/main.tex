@@ -86,7 +86,7 @@ The results of this clustering may be considered proper in the context of common
 \begin{figure}[!hbt]
     \centering
     \includegraphics[page=1,width=0.5\textwidth]{../Rplots.pdf}
-    \caption[]{2D histogram of Dalc and Walc attributes (standardized)
+    \caption[]{2D histogram of Dalc and Walc attributes
     \label{fig:hist2D}
     }
 \end{figure}
@@ -94,7 +94,8 @@ The results of this clustering may be considered proper in the context of common
 \begin{figure}[!hbt]
     \centering
     \includegraphics[page=2,width=0.5\textwidth]{../Rplots.pdf}
-    \caption[]{Clustering with k-means algorithm. (1: non-drinking, 2: drinking)
+    \caption[]{Clustering with k-means algorithm. (1: non-drinking, 2: drinking).
+                Attributes Dalc and Walc are standardized.
     \label{fig:clust}
     }
 \end{figure}
@@ -271,6 +272,44 @@ estimate the class efficiently (we have almost equal probabilities).
     \label{fig:importance}
     }
 \end{figure}
+
+\subsection{Detailed mtry parameter experiment}
+\label{mtryExp}
+
+We experimented with changing maxnodes parameter using other parameters values
+that achieved best results (ntree=500, nodesize=10 and maxnodes=30).
+Mean error plot is shown in figure \ref{fig:detailedMtry}.
+
+\begin{figure}[!hbt]
+    \centering
+    % \includegraphics[trim={2cm 2cm 2cm 2cm},clip,page=3,width=0.5\textwidth]{../Rplots.pdf}
+    \includegraphics[trim={0cm 0cm 0cm 0cm},clip,page=9,width=0.5\textwidth]{../Rplots.pdf}
+    \caption[]{Mean error with standard deviations for various mtry parameter values
+    \label{fig:detailedMtry}
+    }
+\end{figure}
+
+As we can see, best results (error rate around 30\%) are achieved by values 4, 6, and 12.
+In our case, 6 is rounded square of attributes count, and that strategy usually
+gives best results in classification random forest
+(e.g. randomForest package use it for calculating default mtry value for classification).
+
+\subsection{Detailed maxnodes parameter experiment}
+
+Similarly to mtry parameter experiment (section \ref{mtryExp}), we test maxnodes parameter.
+Mean error plot is shown in figure \ref{fig:detailedMaxnodes}.
+
+\begin{figure}[!hbt]
+    \centering
+    % \includegraphics[trim={2cm 2cm 2cm 2cm},clip,page=3,width=0.5\textwidth]{../Rplots.pdf}
+    \includegraphics[trim={0cm 0cm 0cm 0cm},clip,page=12,width=0.5\textwidth]{../Rplots.pdf}
+    \caption[]{Mean error with standard deviations for various maxnodes parameter values
+    \label{fig:detailedMaxnodes}
+    }
+\end{figure}
+
+As we can see, best results (error rate around 30\%) are achieved by values 15 and 30.
+It is hard in this case to explain why these values works better than the others.
 
 
 % \begin{figure}[]

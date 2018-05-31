@@ -5,6 +5,7 @@ library(rpart)
 library(rattle)
 library(ggplot2)
 library(xtable)
+library(Hmisc)
 
 joinDataframes <- function(listOfDf) {
     df <- do.call("rbind", listOfDf)
@@ -70,7 +71,6 @@ mergedData <- function(d1, d2) {
         if (!is.null(lev)) {
             # nominal
             mo <- modefunc(column[!is.na(column)])
-            print(mo)
             dataset[is.na(column), name] <- mo
         } else {
             # numeric
@@ -152,14 +152,13 @@ trainSingleTreeClassifier <- function(dataset, draw=FALSE, cp=0.01, minbucket=15
 }
 
 # returns predict function with 1 param - testset
-
 trainRandomForestClssifier <- function(trainset, draw=FALSE, ntree=500, nodesize=10, mtry=6, maxnodes=30) {
     param <- getParam()
     fit <- randomForest(param, data=trainset, importance=draw, ntree=ntree, nodesize=nodesize, mtry=mtry, maxnodes=maxnodes)
     if (draw) {
         varImpPlot(fit)
         # plot(fit)
-        print(getTree(fit, k=1, labelVar=F))
+        # print(getTree(fit, k=1, labelVar=F))
     }
     predFun <- function(testset) {
         predict(fit, testset)
@@ -207,8 +206,8 @@ doExperiment <- function(dataset, trainFun, repTimes=10) {
     errSamples
 }
 
+# train many decision trees
 decTreeTest <- function(dataset1) {
-    # train many dec trees
     paramCp = list(0.0001, 0.001, 0.01, 0.1, 0.3)
     paramMinBucket = list(5, 15)
     paramMaxDepth = list(5, 15)
@@ -237,11 +236,11 @@ decTreeTest <- function(dataset1) {
           file = "singleResults.tex", caption.placement = "top", include.rownames=FALSE)
 }
 
+# train many random forests
 forestTest <- function(dataset1) {
-    # train many random forests
     paramNtree = list(20, 60, 500)
     paramNodesize = list(1, 10)
-    paramMtry = list(6, 10, 37)
+    paramMtry = list(6, 10, 35)
     paramMaxnodes = list(8, 30, 500)
     records <- apply(expand.grid(paramNtree, paramNodesize, paramMtry, paramMaxnodes), 1, FUN = function(x) {
         samples <- doExperiment(dataset1, function(ds) {
@@ -267,6 +266,69 @@ forestTest <- function(dataset1) {
           file = "forestResults.tex", caption.placement = "top", tabular.environment = "longtable", include.rownames=FALSE)
 }
 
+# train many random forests with various mtry value (and draw plot)
+forestTestDetailedMtry <- function(dataset1) {
+    paramMtry = 1:20 * 2
+    paramMtry = t(paramMtry[paramMtry <= 35])
+    # paramMtry = cbind(1, 3, 5, 8, 10, 20, 25, 35)
+    records <- apply(paramMtry, 2, FUN = function(x) {
+        samples <- doExperiment(dataset1, function(ds) {
+                    trainRandomForestClssifier(ds, mtry=x[[1]])
+        })
+        data.frame(
+                    c(x[[1]]),
+                    c(mean(samples)),
+                    c(sd(samples)),
+                    c(min(samples)),
+                    c(max(samples))
+        )
+    })
+    records <- joinDataframes(records)
+    records <- setNames(records, c("mtry", "err_mean", "err_sd", "err_min", "err_max"))
+    # records <- records[with(records, order(err_mean)), ]
+    print(records)
+    print(xtable(records, type = "latex",
+                 label="table:forestResults2", caption="Random forests results for various mtry parameter values"),
+          file = "forestResults2.tex", caption.placement = "top", include.rownames=FALSE)
+    # records <- records[with(records, order(mtry)), ]
+    plot(records$mtry, records$err_mean, type="l")
+
+    plot(records$mtry, records$err_mean, type="n")
+        with (
+            data = records,
+            expr = errbar(mtry, err_mean, err_mean+err_sd, err_mean-err_sd) # , add=T) # , pch=1, cap=.1)
+        )
+}
+
+# train many random forests with various maxnodes value (and draw plot)
+forestTestDetailedMaxnodes <- function(dataset1) {
+    paramMaxnodes = t(1:20 * 5)
+    records <- apply(paramMaxnodes, 2, FUN = function(x) {
+        samples <- doExperiment(dataset1, function(ds) {
+                    trainRandomForestClssifier(ds, maxnodes=x[[1]])
+        })
+        data.frame(
+                    c(x[[1]]),
+                    c(mean(samples)),
+                    c(sd(samples)),
+                    c(min(samples)),
+                    c(max(samples))
+        )
+    })
+    records <- joinDataframes(records)
+    records <- setNames(records, c("maxnodes", "err_mean", "err_sd", "err_min", "err_max"))
+    print(records)
+    print(xtable(records, type = "latex",
+                 label="table:forestResults2", caption="Random forests results for various mtry parameter values"),
+          file = "forestResults2.tex", caption.placement = "top", include.rownames=FALSE)
+    plot(records$maxnodes, records$err_mean, type="l")
+
+    plot(records$maxnodes, records$err_mean, type="n")
+        with (
+            data = records,
+            expr = errbar(maxnodes, err_mean, err_mean+err_sd, err_mean-err_sd)
+        )
+}
 binaryEntropy <- function(ratio) {
     -(ratio * log(ratio + 1e-100) + (1-ratio) * log((1-ratio) + 1e-100))
 }
@@ -341,12 +403,19 @@ main <- function() {
     trainSingleTreeClassifier(dataset1, draw=T)
     trainRandomForestClssifier(dataset1, draw=T)
 
+    # measure importance of single attributes
     measureSingleSplits(dataset1);
 
     print("-----------single dec tree experiments")
     decTreeTest(dataset1)
     print("-----------random forest experiments")
     forestTest(dataset1)
+
+    print("-----------random forest detailed experiments with mtry parameter")
+    forestTestDetailedMtry(dataset1)
+
+    print("-----------random forest detailed experiments with maxnodes parameter")
+    forestTestDetailedMaxnodes(dataset1)
 }
 
 main()
